@@ -1,0 +1,8 @@
+POST https://cd01-41-79-219-53.ngrok-free.app/api/v1/room_category
+content-type: application/json
+
+{
+    "room_category_label": "chambre 3 places",
+    "place_number": 1
+}
+
