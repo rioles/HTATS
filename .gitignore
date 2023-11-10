@@ -5,4 +5,4 @@
 venv/
 h_tats.egg-info/
 dist/
-builf/
+build/
