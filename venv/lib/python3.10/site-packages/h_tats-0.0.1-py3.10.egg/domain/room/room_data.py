@@ -20,7 +20,7 @@ class RoomData:
     def __post_init__(self):
         self.__room = self.get_room_entity()
         self.__room_itme_status = self.room_item_status()
-              
+             
     def room_item_status(self)-> RoomItemStatus:
         if self.__room_item.item_status is None:
             return None
@@ -29,7 +29,7 @@ class RoomData:
      
     def get_room_itmes_by_id_room(self)->List[RoomItem]:
         obj: ObjectManagerInterface = ObjectManagerAdapter()
-        room_item = obj.get_all_by(RoomCategory, **{"id":self.__room_item.room_id, })
+        room_item = obj.get_all_by(RoomItem, **{"id":self.__room_item.room_id, })
         return room_item
      
     def get_room_entity(self):
@@ -87,10 +87,14 @@ print(objs)
 objectss = {"room_item_label": "un label", "item_type": "un type", "item_description":"une dec", "room_id": objs.id}
 objjj: RoomItem = RoomItem(**objectss)
 print(objjj.to_dict())
-#print(get_room_by_room_item(objjj))
-#if get_room_by_room_item(objjj) is None:
-    #a:RoomData = RoomData(objjj.id, objjj, objs)
-    #print(a)
+print(get_room_by_room_item(objjj))
+
+if get_room_by_room_item(objjj) is None:
+    a:RoomData = RoomData(objjj.id, objjj, objs)
+    print("room was none",a)
+else:
+    a:RoomData = RoomData(objjj.id, objjj)
+    print(a)
     #print(a.get_room_entity())
     #print(a.room_itme_status)
     #print(a.map_room_item_entity_to_room_item_orm())

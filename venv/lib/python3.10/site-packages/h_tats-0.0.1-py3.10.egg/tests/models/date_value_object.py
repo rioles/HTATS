@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime, date
 
-from domain.client import DateValue  # Replace 'your_module' with the actual module where DateValue is defined
+from domain.client.date_value_object import DateValue  
 
 class TestDateValue(unittest.TestCase):
 
@@ -22,6 +22,11 @@ class TestDateValue(unittest.TestCase):
 
     def test_invalid_date_string(self):
         date_str = "2023-11-08T12:34:56:789"  # Invalid format
+        with self.assertRaises(ValueError):
+            DateValue(date_str)
+            
+    def test_invalid_date_string2(self):
+        date_str = "okay"  # Invalid format
         with self.assertRaises(ValueError):
             DateValue(date_str)
 

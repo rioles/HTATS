@@ -1,7 +1,12 @@
-from typing import Any, Dict, List, Optional, TypeVar
+from typing import Any, Dict, List, Optional, Set, TypeVar
+from domain.room.room_data import RoomData
 from models.room import Room
 from models.room_item import RoomItem
+from services.object_manager_adapter import ObjectManagerAdapter
+from services.object_manager_interface import ObjectManagerInterface
+from services.room_service.room.adapter.create_room_adapter import AddRoom
 from services.room_service.room.port.room_item_port import RoomItemPort
+from services.room_service.room.port.room_port import RoomPort
 T = TypeVar('T')  # Type variable for the current class
 
 
@@ -25,6 +30,25 @@ class RoomItemAdapter(RoomItemPort):
             Exception: If the user_object dictionary is empty.
     """
     
+        object_meta_datas = self.reformat_request_data(object_meta_data)
+        room_item: RoomItem = ObjectManager(object_meta_datas).create_room_item()
+        room:Room = ObjectManager(object_meta_datas).create_room()
+        room_data:RoomData = Optional[RoomData]
+        try:
+            room_from_db:Room = get_room_by_room_label(room)
+            room_data = return_room_data(room_item, object_meta_datas, room_from_db)
+            if room_from_db is None:
+                rom_i: RoomPort = AddRoom()
+                room = rom_i.add_object(Room, **room)
+            room_item = room_data.map_room_item_entity_to_room_item_orm()
+            room_item.save()      
+        except Exception as e:
+            print(e)
+            return None
+        return room_data.to_dict()
+        
+    
+    
     def reformat_request_data(self, request_data: Dict[str, str]) -> Dict[str, Dict[str, str]]:
         """
         Reformat and preprocess the provided request data to transform it from an initial format
@@ -44,17 +68,29 @@ class RoomItemAdapter(RoomItemPort):
             room-related and room item-related data are organized within respective sub-dictionaries.
         """
         request_data_reformat = {}
-        room_data = {"room_label":request_data["room_label"], "room_amount":request_data["room_amount"],
-                     "room_status": request_data["room_status"], "room_category_id":request_data["room_category_id"]
-                    }
+        room_item_element = {"room_item_label", "room_id", "room_status", "room_category_id"}
+        room_dat_element = {"room_label", "room_amount","room_status", "room_category_id"}
         
-        room_item_data = {"room_item_label": request_data["room_item_label"], "room_id":request_data["room_id"]}
+        room_data = return_element(room_dat_element, request_data)
+        room_item_data = return_element(room_item_element, request_data)     
         
         request_data_reformat["room_data"] = room_data
         request_data_reformat["room_item_data"] = room_item_data
 
         return request_data_reformat
+
+def return_element(element_set: Set[str], request_data:Dict[str, str])-> Dict[str,Any]:
+    data = {}
+    for element in element_set:
+        if element in request_data:
+            data[element] = request_data[element]
+    return data
+
     
+def get_room_by_room_label(room: Room):
+    obj: ObjectManagerInterface = ObjectManagerAdapter()
+    room = obj.find_object_by(Room, **{"room_label":room.room_label})
+    return room
 
 class ObjectManager:
     def __init__(self, request_data: Dict):
@@ -67,3 +103,35 @@ class ObjectManager:
     def create_room_item(self):
         item_data = self.request_data["room_item_data"]
         return RoomItem(**item_data)
+
+def return_room_data(obj1: RoomItem, object_meta_datas, obj2:Room = None):
+    if obj2 is not None:
+        room_data = RoomData(obj1.id, obj1, obj2)
+        return room_data
+    else:
+        room:Room = ObjectManager(object_meta_datas).create_room()
+        a = RoomData(obj1.id, obj1, room)
+        return a   
+
+    
+a:RoomItemPort = RoomItemAdapter()
+object_meta_data = {"room_label": "un label", "room_amount": 150.0, "room_category_id": "71b3b942-c8af-40f8-b3a3-b98b0c477bd2"}   
+objs: Room = Room(
+    **object_meta_data
+)
+print(objs)
+objectss = {"room_item_label": "un label", "item_type": "un type", "item_description":"une dec", "room_id": objs.id}
+
+
+object_meta_data = {"room_label": "un label", "room_amount": 150.0, 
+                    "room_category_id": "54ffa44e-2e0d-4c63-803d-acd8aec8d752",
+                    "room_item_label": "un label","room_id": objs.id
+                    }
+
+room_dat_element = {"room_label", "room_amount","room_status", "room_category_id"}
+
+#print(return_element(room_dat_element, object_meta_data)) 
+print(a.add_object(RoomItem, **object_meta_data))
+#o:ObjectManager = ObjectManager(a.reformat_request_data(object_meta_data))
+#print(o.create_room())
+#print(o.create_room_item())

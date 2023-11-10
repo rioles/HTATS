@@ -1,0 +1,8 @@
+# Ignore configuration files
+.env
+# Ignore Editor-specific files
+.vscode/
+venv/
+h_tats.egg-info/
+dist/
+builf/

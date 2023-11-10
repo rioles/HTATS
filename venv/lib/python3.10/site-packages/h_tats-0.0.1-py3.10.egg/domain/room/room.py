@@ -72,12 +72,12 @@ objs: Room = Room(
     **object_meta_data
 )
 """
-object_meta_data = {"room_label": "un label", "room_amount": 150.0, "room_category_id": "71b3b942-c8af-40f8-b3a3-b98b0c477bd2"}   
+object_meta_data = {"room_label": "un label", "room_amount": 150.0, "room_category_id": "54ffa44e-2e0d-4c63-803d-acd8aec8d752"}   
 objs: Room = Room(
     **object_meta_data
 )
 print(objs.room_status)
 print(objs)
 a:RoomEntity = RoomEntity(objs.id,objs)
-#print(a.map_room_entity_to_room_orm())
+print(a.map_room_entity_to_room_orm())
 

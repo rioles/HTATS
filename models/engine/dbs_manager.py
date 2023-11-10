@@ -20,6 +20,7 @@ from models.room_occupation import RoomOccupation
 from models.room import Room
 from models.settlement import Settlement
 from models.settlement_invoice import SettlementInvoice
+from models.customer_type import CustormerType
 from dotenv import load_dotenv
 load_dotenv()
 T = TypeVar('T')

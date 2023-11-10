@@ -12,6 +12,7 @@ api/v1/endpoints/room/creat_room.py
 api/v1/endpoints/room/create_category.py
 domain/__init__.py
 domain/client/__init__.py
+domain/client/client_entity.py
 domain/client/date_value_object.py
 domain/room/__init__.py
 domain/room/room.py

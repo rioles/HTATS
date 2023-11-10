@@ -15,6 +15,5 @@ class BasePerson(BaseModel):
     date_of_birth = Column(DateTime, nullable=True) # look at this date later
     phone_number = Column(String(128), nullable=True)
     address = Column(String(128), nullable= True)
-    sexe = Column(String(100), nullable= True)
     
 

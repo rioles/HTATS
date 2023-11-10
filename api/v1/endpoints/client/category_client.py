@@ -1,6 +1,6 @@
 from api.v1.endpoints import app_views
 from flask import abort, jsonify, make_response, request
-from models.customer import Customer
+from models.customer_type import CustormerType
 from services.paginator import Paginator
 from services.room_service.room.port.room_port import RoomPort
 from services.room_service.room.adapter.create_room_adapter import AddRoom
@@ -14,10 +14,9 @@ def post_category_client():
             {'status': '401', 'message': 'The request data is empty'}), 400)
         
     obj: ObjectManagerInterface = ObjectManagerAdapter()
-    
-    custormer = obj.add_object(
-        Customer, **request.get_json())
-    return make_response(jsonify(custormer.to_dict()), 201)
+    custormer_type = obj.add_object(
+        CustormerType, **request.get_json())
+    return make_response(jsonify(custormer_type.to_dict()), 201)
 
 @app_views.route('/categorie_client/<string:categorie_client_id>', methods=['GET'],
                  strict_slashes=False)
