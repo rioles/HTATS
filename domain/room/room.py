@@ -44,6 +44,7 @@ class RoomEntity:
     def get_room_price(self)-> RoomPrice:
         price: RoomPrice = RoomPrice(self.room.room_amount)
         return price
+    
         
     def map_room_orm_to_room_entity(self)-> "RoomEntity":
         room_entity = Room(
@@ -54,16 +55,40 @@ class RoomEntity:
         return room_entity
     
     def to_dict(self):
-        """creates dictionary of the class  and returns
+        """creates dictionary of the class and returns
         Return:
-            returns a dictionary of all the key values in __dict__
+        returns a dictionary of all the key values in __dict__
         """
         my_dict = dict(self.__dict__)
-        for element in my_dict:
-            if element not in ["id", "room_price"]:
+        #print("dict_function", my_dict)
+
+        keys_to_delete = {"room_status"}
+
+        for key in keys_to_delete.intersection(my_dict.keys()):
+            del my_dict[key]
+
+        for element in ["room", "room_category"]:
+            if element in my_dict:
                 my_dict[element] = my_dict[element].to_dict()
+
         return my_dict
-                
+
+    """
+    def to_dict(self):
+        creates dictionary of the class  and returns
+        Return:
+            returns a dictionary of all the key values in __dict__
+        
+        my_dict = dict(self.__dict__)
+        print("dict_function",my_dict)
+        for element in my_dict:
+            if element  in ["room", "room_category"]:
+                my_dict[element] = my_dict[element].to_dict()
+        for element in my_dict:
+            if element in {"id", "room_status"}:
+                del my_dict[element]
+        return my_dict
+         """       
 
 
 """
@@ -72,12 +97,23 @@ objs: Room = Room(
     **object_meta_data
 )
 """
-object_meta_data = {"room_label": "un label", "room_amount": 150.0, "room_category_id": "54ffa44e-2e0d-4c63-803d-acd8aec8d752"}   
+object_meta_data = {"room_label": "labelsbross", "room_amount": 150.0, "room_category_id": "54ffa44e-2e0d-4c63-803d-acd8aec8d752"}   
 objs: Room = Room(
     **object_meta_data
 )
-print(objs.room_status)
-print(objs)
-a:RoomEntity = RoomEntity(objs.id,objs)
-print(a.map_room_entity_to_room_orm())
+
+def get_room_by_room_label(room: Room):
+    obj: ObjectManagerInterface = ObjectManagerAdapter()
+    room = obj.find_object_by(Room, **{"room_label":room.room_label})
+    return room
+
+o = get_room_by_room_label(objs)
+#print(objs.room_status)
+#print(objs)
+a:RoomEntity = RoomEntity(o.id,o)
+#print(a.map_room_entity_to_room_orm())
+#b = a.map_room_entity_to_room_orm()
+
+#print(b.save())
+print(a.to_dict())
 

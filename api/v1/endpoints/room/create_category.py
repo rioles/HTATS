@@ -1,3 +1,4 @@
+from flask_cors import cross_origin
 from api.v1.endpoints import app_views
 from flask import abort, jsonify, make_response, request
 from models.room_category import RoomCategory
@@ -8,6 +9,7 @@ from services.object_manager_interface import ObjectManagerInterface
 from services.room_service.room_category_manager.adapter.room_category_adapter import CreateCategoryRoom
 
 @app_views.route('/room_category', methods=['POST'], strict_slashes=False)
+@cross_origin()
 def post_room_category():
     """create a new category"""
     if not request.get_json():
@@ -20,6 +22,7 @@ def post_room_category():
     return make_response(jsonify(category_room.to_dict()), 201)
 
 @app_views.route('/room_categories', methods=['GET'], strict_slashes=False)
+@cross_origin()
 def get_room_categories():
     """get room categories information for all patients"""
     obj: ObjectManagerInterface = ObjectManagerAdapter()

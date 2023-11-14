@@ -13,3 +13,4 @@ class Customer(BasePerson, Base):
     ifu = Column(String(128), nullable=True)
     customer_invoice = relationship("Invoice", backref="Customer", cascade="delete")
     customer_type_id = Column(String(60), ForeignKey('type_custormer.id'), nullable=False)
+    

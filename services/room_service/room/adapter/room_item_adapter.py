@@ -32,20 +32,32 @@ class RoomItemAdapter(RoomItemPort):
     
         object_meta_datas = self.reformat_request_data(object_meta_data)
         room_item: RoomItem = ObjectManager(object_meta_datas).create_room_item()
+        room_data = self.reformat_request_data(object_meta_data)["room_data"]
         room:Room = ObjectManager(object_meta_datas).create_room()
-        room_data:RoomData = Optional[RoomData]
+        room_from_db:Room = get_room_by_room_label(room)
+        print(room)
         try:
-            room_from_db:Room = get_room_by_room_label(room)
-            room_data = return_room_data(room_item, object_meta_datas, room_from_db)
-            if room_from_db is None:
+            
+            if room_from_db is not None:
+                room_data = return_room_data(room_item, object_meta_datas, room_from_db)
+                room_items = room_data.map_room_item_entity_to_room_item_orm()
+                room_items.save()
+                return room_data.to_dict()
+            else:
                 rom_i: RoomPort = AddRoom()
-                room = rom_i.add_object(Room, **room)
-            room_item = room_data.map_room_item_entity_to_room_item_orm()
-            room_item.save()      
+                room_data = self.reformat_request_data(object_meta_data)["room_data"]
+                room_db = rom_i.add_object(Room, **room_data)
+                room_data["id"] = room_db["room"]["id"]
+                object_meta_datas["room_data"] = room_data
+                room:Room = ObjectManager(object_meta_datas).create_room()
+                room_data = return_room_data(room_item, object_meta_datas, room)
+                room_item = room_data.map_room_item_entity_to_room_item_orm()
+                room_item.save()
+                return room_data.to_dict()
         except Exception as e:
             print(e)
             return None
-        return room_data.to_dict()
+
         
     
     
@@ -115,7 +127,7 @@ def return_room_data(obj1: RoomItem, object_meta_datas, obj2:Room = None):
 
     
 a:RoomItemPort = RoomItemAdapter()
-object_meta_data = {"room_label": "un label", "room_amount": 150.0, "room_category_id": "71b3b942-c8af-40f8-b3a3-b98b0c477bd2"}   
+object_meta_data = {"room_label": "un label", "room_amount": 150.0, "room_category_id": "478850b8-376a-4359-b7d3-4f18c40be712"}   
 objs: Room = Room(
     **object_meta_data
 )
@@ -123,9 +135,9 @@ print(objs)
 objectss = {"room_item_label": "un label", "item_type": "un type", "item_description":"une dec", "room_id": objs.id}
 
 
-object_meta_data = {"room_label": "un label", "room_amount": 150.0, 
+object_meta_data = {"room_label": "retfdre", "room_amount": 3000.0, 
                     "room_category_id": "54ffa44e-2e0d-4c63-803d-acd8aec8d752",
-                    "room_item_label": "un label","room_id": objs.id
+                    "room_item_label": "dretyu"
                     }
 
 room_dat_element = {"room_label", "room_amount","room_status", "room_category_id"}

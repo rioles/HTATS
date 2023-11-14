@@ -1,5 +1,5 @@
 from flask import Flask, make_response, jsonify, redirect, request
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from models import storage
 from api.v1.endpoints import app_views
 import os

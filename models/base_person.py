@@ -12,8 +12,10 @@ class BasePerson(BaseModel):
     first_name = Column(String(128), nullable=True)
     last_name = Column(String(128), nullable=True)
     gender = Column(String(128), nullable=True)
-    date_of_birth = Column(DateTime, nullable=True) # look at this date later
+    date_of_birth = Column(DateTime, nullable=True) 
     phone_number = Column(String(128), nullable=True)
     address = Column(String(128), nullable= True)
+    email = Column(String(128), nullable= True)
+    institute_name = Column(String(128), nullable= True)
     
 
