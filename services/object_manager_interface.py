@@ -116,7 +116,7 @@ class ObjectManagerInterface(ABC):
         Returns:
             A list of objects.
         """
-        return storage.find_all_by(current_class,**filter)
+        
     
     def delete_object(
         self,

@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional, Set, TypeVar
 from domain.room.room_data import RoomData
+from domain.room.room_entity import RoomDataAgregate
 from models.room import Room
 from models.room_item import RoomItem
 from services.object_manager_adapter import ObjectManagerAdapter
@@ -7,6 +8,7 @@ from services.object_manager_interface import ObjectManagerInterface
 from services.room_service.room.adapter.create_room_adapter import AddRoom
 from services.room_service.room.port.room_item_port import RoomItemPort
 from services.room_service.room.port.room_port import RoomPort
+from models import storage
 T = TypeVar('T')  # Type variable for the current class
 
 
@@ -90,6 +92,74 @@ class RoomItemAdapter(RoomItemPort):
         request_data_reformat["room_item_data"] = room_item_data
 
         return request_data_reformat
+    
+    
+      
+    def find_all_object(self, current_class: T) -> List[T]:
+
+        """
+        Gets all objects of a class from the database.
+        This function gets all objects of a class from the database. The
+       `current_class` argument specifies the class of the objects to find.
+        The function returns a list of objects, where each object is
+        a dictionary of the object's properties.
+        Args:
+            current_class: The class of the objects to find.
+
+        Returns:
+            A list of objects.
+        """
+        return storage.get_all(current_class)
+    
+    def find_all_room_data(
+        self,
+        room_object: T,
+        ) -> List[Dict[str, Any]]:
+        """
+        Retrieve all client data for a specific customer object.
+
+        Args:
+            customer_object (Type): The specific customer object for which to retrieve data.
+
+        Returns:
+            List[Dict[str, Any]]: A list of dictionaries containing client data for the specified customer.
+
+        Raises:
+            Any specific exceptions raised during the data retrieval process.
+        """
+        all_room_items: List[Room] = storage.get_all(Room) #self.find_all_object(room_object)
+        all_element:List[Dict[str, Any]] = []
+        
+        
+        for element in all_room_items:
+            room_data:RoomDataAgregate = RoomDataAgregate(element)
+            all_element.append(room_data.to_dict())
+        return all_element
+    
+    def reformat_request_data(self, request_data: Dict[str, str]) -> Dict[str, Dict[str, str]]:
+        """
+        Reformat and preprocess the provided request data to transform it from an initial format
+        to a desired format where room-related and room item-related data are organized within
+        respective sub-dictionaries.
+
+        This abstract method allows subclasses to implement custom logic for reformatting and
+        organizing the input request data. It is typically used when the incoming data structure
+        requires segmentation into specific categories, such as room-related and room item-related
+        data.
+
+        Parameters:
+            request_data (Dict[str, str]): The input request data in its initial format.
+
+        Returns:
+            Dict[str, Dict[str, str]]: The reformatted request data in the desired format, where
+            room-related and room item-related data are organized within respective sub-dictionaries.
+        """
+        pass
+
+        
+    
+    
+    
 
 def return_element(element_set: Set[str], request_data:Dict[str, str])-> Dict[str,Any]:
     data = {}
@@ -123,27 +193,4 @@ def return_room_data(obj1: RoomItem, object_meta_datas, obj2:Room = None):
     else:
         room:Room = ObjectManager(object_meta_datas).create_room()
         a = RoomData(obj1.id, obj1, room)
-        return a   
-
-    
-a:RoomItemPort = RoomItemAdapter()
-object_meta_data = {"room_label": "un label", "room_amount": 150.0, "room_category_id": "478850b8-376a-4359-b7d3-4f18c40be712"}   
-objs: Room = Room(
-    **object_meta_data
-)
-print(objs)
-objectss = {"room_item_label": "un label", "item_type": "un type", "item_description":"une dec", "room_id": objs.id}
-
-
-object_meta_data = {"room_label": "retfdre", "room_amount": 3000.0, 
-                    "room_category_id": "54ffa44e-2e0d-4c63-803d-acd8aec8d752",
-                    "room_item_label": "dretyu"
-                    }
-
-room_dat_element = {"room_label", "room_amount","room_status", "room_category_id"}
-
-#print(return_element(room_dat_element, object_meta_data)) 
-print(a.add_object(RoomItem, **object_meta_data))
-#o:ObjectManager = ObjectManager(a.reformat_request_data(object_meta_data))
-#print(o.create_room())
-#print(o.create_room_item())
+        return a

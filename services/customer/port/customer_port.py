@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, TypeVar
 T = TypeVar('T')  # Type variable for the current class
 
 
-class RoomItemPort(ABC):
+class CustormPort(ABC):
     @abstractmethod
     def add_object(
         self,
@@ -25,26 +25,23 @@ class RoomItemPort(ABC):
     """
     
     @abstractmethod
-    def reformat_request_data(self, request_data: Dict[str, str]) -> Dict[str, Dict[str, str]]:
+    def find_object_by(
+        self,
+        object_class: T,
+        **object_meta_data:
+        Dict[str, str]
+    ) -> T:
         """
-        Reformat and preprocess the provided request data to transform it from an initial format
-        to a desired format where room-related and room item-related data are organized within
-        respective sub-dictionaries.
+        Finds an object in the storage.
 
-        This abstract method allows subclasses to implement custom logic for reformatting and
-        organizing the input request data. It is typically used when the incoming data structure
-        requires segmentation into specific categories, such as room-related and room item-related
-        data.
-
-        Parameters:
-            request_data (Dict[str, str]): The input request data in its initial format.
+        Args:
+            object_class: The class of the user to find.
+            user_object: A criteria on which relies the user search.
 
         Returns:
-            Dict[str, Dict[str, str]]: The reformatted request data in the desired format, where
-            room-related and room item-related data are organized within respective sub-dictionaries.
+            The user object, if found.
         """
-        pass
-
+        
     @abstractmethod  
     def find_all_object(self, current_class: T) -> List[T]:
 
@@ -60,3 +57,30 @@ class RoomItemPort(ABC):
         Returns:
             A list of objects.
         """
+    
+    @abstractmethod
+    def find_all_client_data(
+        self,
+        customer_object: T,
+    ) -> List[Dict[str, Any]]:
+        """
+        Retrieve all client data for a specific customer object.
+
+        Args:
+            customer_object (Type): The specific customer object for which to retrieve data.
+
+        Returns:
+            List[Dict[str, Any]]: A list of dictionaries containing client data for the specified customer.
+
+        Raises:
+            Any specific exceptions raised during the data retrieval process.
+        """
+        pass
+
+
+
+
+
+  
+
+    

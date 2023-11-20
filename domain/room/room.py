@@ -68,7 +68,7 @@ class RoomEntity:
             del my_dict[key]
 
         for element in ["room", "room_category"]:
-            if element in my_dict:
+            if element in my_dict and my_dict[element] is not None:
                 my_dict[element] = my_dict[element].to_dict()
 
         return my_dict
@@ -97,7 +97,7 @@ objs: Room = Room(
     **object_meta_data
 )
 """
-object_meta_data = {"room_label": "labelsbross", "room_amount": 150.0, "room_category_id": "54ffa44e-2e0d-4c63-803d-acd8aec8d752"}   
+object_meta_data = {"room_label": "terdfrrdsg", "room_amount": "150.0", "room_category_id": "4a600ab2-f15e-4e4f-90de-286199fc7e39"}   
 objs: Room = Room(
     **object_meta_data
 )
@@ -106,14 +106,18 @@ def get_room_by_room_label(room: Room):
     obj: ObjectManagerInterface = ObjectManagerAdapter()
     room = obj.find_object_by(Room, **{"room_label":room.room_label})
     return room
+print(objs)
+print(RoomEntity(objs.id, objs))
+a = RoomEntity(objs.id, objs)
+b=a.map_room_entity_to_room_orm()
 
-o = get_room_by_room_label(objs)
+#o = get_room_by_room_label(objs)
 #print(objs.room_status)
 #print(objs)
-a:RoomEntity = RoomEntity(o.id,o)
+#a:RoomEntity = RoomEntity(o.id,o)
 #print(a.map_room_entity_to_room_orm())
 #b = a.map_room_entity_to_room_orm()
 
 #print(b.save())
-print(a.to_dict())
+#print(a.to_dict())
 

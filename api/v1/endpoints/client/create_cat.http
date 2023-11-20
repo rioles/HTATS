@@ -1,3 +1,6 @@
-GET https://ae94-41-79-217-130.ngrok-free.app/api/v1/categories_clients
+POST https://9b80-41-79-219-91.ngrok-free.app/api/v1/category_client
 content-type: application/json
 
+{
+    "type_custormer": "Morale"
+}

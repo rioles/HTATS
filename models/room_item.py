@@ -16,7 +16,7 @@ class RoomItemStatus(Enum):
 
 class RoomItem(BaseModel, Base):
     __tablename__ = 'room_item'
-    room_item_label = Column(String(128), unique=True, nullable=False)
+    room_item_label = Column(String(128), nullable=False)
     item_type = Column(String(128),  nullable=True)
     item_description  = Column(Text, nullable=True)
     item_status = Column(String(128),  default=RoomItemStatus.WORKING.value)

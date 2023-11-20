@@ -16,7 +16,7 @@ class RoomData:
     room_orm: Room = Room
     room: RoomEntity = Optional[RoomEntity]
     __room_itme_status: RoomItemStatus = Optional[RoomItemStatus]
-    
+  
     def __post_init__(self):
         self.room = self.get_room_entity()
         self.__room_itme_status = self.room_item_status()
@@ -94,7 +94,7 @@ print(get_room_by_room_item(objjj))
 
 if get_room_by_room_item(objjj) is None:
     a:RoomData = RoomData(objjj.id, objjj, objs)
-    print("room was none",a)
+    print("room was none",a.map_room_item_entity_to_room_item_orm())
     print(a.to_dict())
 else:
     a:RoomData = RoomData(objjj.id, objjj)

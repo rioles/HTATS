@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+from sqlalchemy import asc
 from sqlalchemy import Column, String, DateTime,func, create_engine, Numeric, ForeignKey, Text
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 from typing import Any, Dict, Optional, TypeVar
@@ -149,7 +150,9 @@ class DBSManager(HotelReservationCrudPort):
     def get_all(self, target_class: T) -> T:
         """query on the current database session"""
         #session.query(Patient).filter(Patient.is_deleted == False).all()
-        objs = self.__session.query(target_class).filter(target_class.is_deleted == False).all()
+        objs = self.__session.query(target_class).filter(target_class.is_deleted == False).order_by(asc(target_class.created_at)).all()
+
+        #objs = self.__session.query(target_class).filter(target_class.is_deleted == False).all()
         return objs
 
 

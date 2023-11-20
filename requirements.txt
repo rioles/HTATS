@@ -8,6 +8,7 @@ Flask==2.3.3
 Flask-Cors==4.0.0
 Flask-Login==0.6.2
 greenlet==2.0.2
+h-tats==0.0.1
 idna==3.4
 isort==5.12.0
 itsdangerous==2.1.2
