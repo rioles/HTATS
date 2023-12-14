@@ -21,3 +21,4 @@ def post_room():
     room = room_ob.add_object(
         Room, **request.get_json())
     return make_response(jsonify(room.to_dict()), 201)
+

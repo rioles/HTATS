@@ -48,11 +48,12 @@ def get_client_by_phone(phone_number):
     print(phone_number)
     customer: CustormPort = CustomerAdapter()
     customer_object = customer.find_object_by(Customer, **{"phone_number":phone_number})
+    print(customer_object)
     if customer_object is None:
         return make_response(jsonify(
-            {'status': '204', 'message': 'No client is associated with this phone number.'}), 204)
-        
-    return make_response(jsonify(customer_object), 200)
+            {'status': '404', 'message': 'No client is associated with this phone number.'}), 404)
+    else:
+        return make_response(jsonify(customer_object), 200)
 
 
 @app_views.route('/clients', methods=['GET'], strict_slashes=False)

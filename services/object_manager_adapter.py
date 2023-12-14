@@ -266,3 +266,5 @@ class ObjectManagerAdapter(ObjectManagerInterface):
         """
 
         return storage.get_all(current_class)
+    
+    

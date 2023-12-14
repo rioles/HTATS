@@ -15,6 +15,7 @@ class RoomOccupation(BaseModel, Base):
     room_id = Column(String(60), ForeignKey('room.id'), nullable=False)
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
+    invoice_id = Column(String(60), ForeignKey('invoice.id'), nullable=False)
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

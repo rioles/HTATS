@@ -25,7 +25,7 @@ class ClientData:
         self.__telephone = self.get_phone_number()
     
     def get_date(self)-> datetime:
-        date: DateValue = DateValue(self.customer.date_of_birth)
+        date: DateValue = DateValue(self.customer.date_of_birth) if self.customer.date_of_birth is not None else datetime.utcnow()
         return date
       
     def get_email(self):

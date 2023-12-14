@@ -6,6 +6,7 @@ click==8.1.7
 dill==0.3.7
 Flask==2.3.3
 Flask-Cors==4.0.0
+Flask-JWT-Extended==4.5.3
 Flask-Login==0.6.2
 greenlet==2.0.2
 h-tats==0.0.1
@@ -21,6 +22,7 @@ mysqlclient==2.2.0
 oauthlib==3.2.2
 parso==0.8.3
 platformdirs==3.10.0
+PyJWT==2.8.0
 pylint==2.17.5
 python-dotenv==1.0.0
 requests==2.31.0

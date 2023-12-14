@@ -10,7 +10,7 @@ from models.invoice import Invoice
 
 class Settlement(BaseModel, Base):
     __tablename__ = 'settlement'
-    payer_name = Column(String(128), nullable=False)
+    payer_name = Column(String(128), nullable=True)
     settlement_amount =  Column(Numeric(10, 2), nullable=False)
     payer_phone = Column(String(128), nullable=True)
     invoices = relationship("Invoice", secondary="settlement_invoice", back_populates="settlements")

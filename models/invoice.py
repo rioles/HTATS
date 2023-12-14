@@ -8,7 +8,7 @@ from models.base import BaseModel
 from models.basic_base import Base
 
 
-class IncoiceStatus(Enum):
+class InvoiceStatus(Enum):
     PAID = 'Paid'
     UNPAID = 'Unpaid'
     CANCELLED = 'Cancelled'
@@ -21,4 +21,4 @@ class Invoice(BaseModel, Base):
     invoice_status = Column(String(128), nullable=True)
     customer_id = Column(String(60), ForeignKey('customer.id'), nullable=False)
     settlements = relationship("Settlement", secondary="settlement_invoice", back_populates="invoices")
-   
+    customer = relationship('Customer', back_populates='invoices')

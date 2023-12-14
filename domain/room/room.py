@@ -107,9 +107,10 @@ def get_room_by_room_label(room: Room):
     room = obj.find_object_by(Room, **{"room_label":room.room_label})
     return room
 print(objs)
-print(RoomEntity(objs.id, objs))
-a = RoomEntity(objs.id, objs)
-b=a.map_room_entity_to_room_orm()
+#print(RoomEntity(objs.id, objs))
+#a = RoomEntity(objs.id, objs)
+#print(a)
+#b=a.map_room_entity_to_room_orm()
 
 #o = get_room_by_room_label(objs)
 #print(objs.room_status)

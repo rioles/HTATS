@@ -34,3 +34,6 @@ def get_rooms():
     per_page = request.args.get('per_page', default=10, type=int)  # Get the per_page parameter from the request query string
     result = page_obj.get_hyper(page, per_page)
     return make_response(jsonify(result), 200)
+
+
+

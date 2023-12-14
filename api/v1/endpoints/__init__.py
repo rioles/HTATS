@@ -7,6 +7,8 @@ from api.v1.endpoints.room.creat_room import *
 from api.v1.endpoints.client.category_client import *
 from api.v1.endpoints.room.create_room_item import *
 from api.v1.endpoints.client.clients import *
+from api.v1.endpoints.user.user import *
+from api.v1.endpoints.occupation.occupation import *
 
 
 

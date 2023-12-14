@@ -11,5 +11,6 @@ class RoomOccupants(BasePerson, Base):
     """Class representing the doctor table"""
     __tablename__ = 'room_occupants'
     occupation_id = Column(String(60), ForeignKey('room_occupation.id'), nullable=False)
+    #occupation_id = Column(String(60), ForeignKey('room_occupation.id'), nullable=False)
 
     

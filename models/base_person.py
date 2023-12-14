@@ -17,5 +17,9 @@ class BasePerson(BaseModel):
     address = Column(String(128), nullable= True)
     email = Column(String(128), nullable= True)
     institute_name = Column(String(128), nullable= True)
+    document_number = Column(String(128), nullable= True)
+    type_of_document = Column(String(128), nullable= True)
+    profession = Column(String(128), nullable= True)
+    reason = Column(String(128), nullable= True)
     
 

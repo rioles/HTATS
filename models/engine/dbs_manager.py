@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import os
 from sqlalchemy import asc
-from sqlalchemy import Column, String, DateTime,func, create_engine, Numeric, ForeignKey, Text
+from sqlalchemy import Column, String, DateTime,func, create_engine, Numeric, ForeignKey, Text, or_, and_
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
-from typing import Any, Dict, Optional, TypeVar
+from typing import Any, Dict, Optional, TypeVar, Union
 from sqlalchemy.orm.exc import NoResultFound
 from repository.hotel_reservation_crud_port import HotelReservationCrudPort
 from models.basic_base import Base
@@ -22,7 +22,16 @@ from models.room import Room
 from models.settlement import Settlement
 from models.settlement_invoice import SettlementInvoice
 from models.customer_type import CustormerType
+from models.permission import Permission
+from models.role import Role
+from models.user import User
+from models.user_role import UserRoles
+from models.role_permission import RolePermissions
 from dotenv import load_dotenv
+from datetime import datetime
+from models.token_block_list import TokenBlockList
+from sqlalchemy.orm import joinedload
+TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S"
 load_dotenv()
 T = TypeVar('T')
 class DBSManager(HotelReservationCrudPort):
@@ -91,6 +100,67 @@ class DBSManager(HotelReservationCrudPort):
         except NoResultFound:
             return []
 
+    
+    def find_all_with_join(self, prim_class: T, join_class: T , **kwargs) -> T:
+        """
+        Find a object by the given criteria
+        Args:
+            **kwargs: The criteria to search for
+            prim_class: mother class,
+            join_class: child class
+        Returns:
+            T: The found object_t
+        """
+
+        try:
+            object_t = self.__session.query(prim_class).join(join_class).filter_by(**kwargs).all()
+            if not object_t:
+                raise NoResultFound("No object found")
+            return object_t
+        except NoResultFound:
+            return []
+        
+    def find_all_with_joins(self, prim_class: T, join_class: T) -> T:
+        """
+        Join two classes without filtering
+        Args:
+            prim_class: mother class
+            join_class: child class
+        Returns:
+            T: The joined object_t
+        """
+
+        try:
+            object_t = self.__session.query(prim_class).join(join_class).all()
+            if not object_t:
+                raise NoResultFound("No object found")
+            return object_t
+        except NoResultFound:
+            return []
+        
+    def find_all_with__twow_class_join(self, prim_class: T, join_class: T, relationship_attr: str) -> T:
+        """
+        Find all objects with a simple join
+        Args:
+            prim_class: Mother class (Customer)
+            join_class: Child class (Invoice)
+            relationship_attr: Name of the relationship attribute in prim_class
+        Returns:
+            T: List of found objects
+        """
+        try:
+            relationship_attr_obj = getattr(prim_class, relationship_attr)
+            object_t = (
+                self.__session.query(prim_class)
+                .join(join_class)
+                .options(joinedload(relationship_attr_obj))  # Use the actual attribute object
+                .all()
+            )
+            if not object_t:
+                raise NoResultFound("No object found")
+            return object_t
+        except NoResultFound:
+            return []
 
 
     def get_sum_with_filter(
@@ -165,8 +235,39 @@ class DBSManager(HotelReservationCrudPort):
         """
         if target_obj is not None:
             self.__session.delete(target_obj)
+    
+    def get_room_with_date_interval(
+        self,
+        target_class: T,
+        start_date: Union[str, datetime],
+        end_date: Union[str, datetime]
+    ) -> list[T]:
+        if isinstance(start_date, str):
+            start_date = convert_to_timestamp(start_date)
+        if isinstance(end_date, str):
+            end_date = convert_to_timestamp(end_date)
 
+        try:
+            results = self.__session.query(target_class).filter(
+            or_(
+                and_(target_class.start_date >= start_date, target_class.start_date < end_date),
+                and_(target_class.end_date > start_date, target_class.end_date <= end_date),
+                and_(target_class.start_date <= start_date, target_class.end_date >= end_date),
+                and_(target_class.start_date <= start_date, target_class.end_date >= end_date, target_class.start_date >= start_date, target_class.end_date <= end_date)
+                )
+        ).all()
+           
+            return results
+        except NoResultFound:
+            return []
 
     def close(self)-> None :
         """call remove() method on the private session attribute"""
         self.__session.remove()
+       
+
+def convert_to_timestamp(date_str: str) -> Union[None, datetime]:
+    try:
+        return datetime.strptime(date_str, TIMESTAMP_FORMAT)
+    except ValueError:
+        return None
