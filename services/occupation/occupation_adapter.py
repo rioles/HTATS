@@ -18,8 +18,6 @@ T = TypeVar('T')  # Type variable for the current class
 from models import storage
 from models.customer import Customer
 
-
-
 class OccupationAdapter(OccupationPort):
     def add_object(
         self,
@@ -193,8 +191,26 @@ class OccupationAdapter(OccupationPort):
         room = storage.find_by(Room, **{"id":object_meta_data["id"]})
         room_entity_data:RoomOccupationEntityData = RoomOccupationEntityData(room)
         return room_entity_data.to_dict()
+    
+    def vacate_room(
+        self, 
+        **object_meta_data: Dict[str, str]
+    ) -> Room:
+        """
+            Free up a room by deleting the room occupation and updating the room 
+            status to new status.
 
-
+        Parameters:
+        - object_meta_data (Dict[str, str]): Metadata associated with the room to be vacated and room_occupation.
+        Returns:
+        - T: The room updated. 
+        """
+        room_occupation = storage.find_by(RoomOccupation, **{"id":object_meta_data["room_occupation_id"]})
+        storage.update_object(Room,object_meta_data["room_id"], **{"room_status":object_meta_data["room_status"]})
+        room_occupation.delete()
+        room = storage.find_by(Room, **{"id":object_meta_data["room_id"]})
+        return room.to_dict()
+    
 #RoomOccupationEntityData
 def return_all_room_items(rooms:List[Room]):
     if rooms is not None:

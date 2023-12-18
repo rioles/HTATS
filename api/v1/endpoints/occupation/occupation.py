@@ -113,3 +113,16 @@ def get_room():
     room_ob: OccupationPort = OccupationAdapter()
     room_objects = room_ob.get_room_entity_data(**request.get_json())
     return make_response(jsonify(room_objects), 200)
+
+
+@app_views.route('/update_room', methods=['POST'], strict_slashes=False)
+@cross_origin()
+def update_room():
+    """create a new client"""
+    if not request.get_json():
+        return make_response(jsonify(
+            {'status': '401', 'message': 'The request data is empty'}), 400)
+        
+    room_ob: OccupationPort = OccupationAdapter()
+    room_objects = room_ob.vacate_room(request.get_json())
+    return make_response(jsonify(room_objects), 200)

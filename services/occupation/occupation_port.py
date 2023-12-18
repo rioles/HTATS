@@ -92,9 +92,24 @@ class OccupationPort(ABC):
     ) -> T:
         """
         """
+    @abstractmethod
     def get_room_entity_data(
         self,
         **object_meta_data: Dict[str, str]
     ) -> T:
         """
+        """
+    @abstractmethod    
+    def vacate_room(
+        self, 
+        **object_meta_data: Dict[str, str]
+    ) -> T:
+        """
+            Free up a room by deleting the room occupation and updating the room 
+            status to new status.
+
+        Parameters:
+        - object_meta_data (Dict[str, str]): Metadata associated with the room to be vacated and room_occupation.
+        Returns:
+        - T: The room updated. 
         """
