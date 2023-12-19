@@ -131,7 +131,7 @@ class DBSManager(HotelReservationCrudPort):
         """
 
         try:
-            object_t = self.__session.query(prim_class).join(join_class).all()
+            object_t = self.__session.query(prim_class).join(join_class).order_by(asc(prim_class.created_at)).all()
             if not object_t:
                 raise NoResultFound("No object found")
             return object_t
@@ -255,7 +255,7 @@ class DBSManager(HotelReservationCrudPort):
                 and_(target_class.start_date <= start_date, target_class.end_date >= end_date),
                 and_(target_class.start_date <= start_date, target_class.end_date >= end_date, target_class.start_date >= start_date, target_class.end_date <= end_date)
                 )
-        ).all()
+        ).order_by(asc(target_class.created_at)).all()
            
             return results
         except NoResultFound:

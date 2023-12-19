@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, Dict, List, Optional, TypeVar, Union
+
+from domain.room.room_entity import RoomAvailableData
 T = TypeVar('T')  # Type variable for the current class
 
 
@@ -113,3 +115,9 @@ class OccupationPort(ABC):
         Returns:
         - T: The room updated. 
         """
+        
+    def get_available_room(
+        self 
+    ) -> List[RoomAvailableData]:
+        pass
+        

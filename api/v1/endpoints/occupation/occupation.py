@@ -124,5 +124,14 @@ def update_room():
             {'status': '401', 'message': 'The request data is empty'}), 400)
         
     room_ob: OccupationPort = OccupationAdapter()
-    room_objects = room_ob.vacate_room(request.get_json())
+    room_objects = room_ob.vacate_room(**request.get_json())
     return make_response(jsonify(room_objects), 200)
+
+@app_views.route('/room_availlable', methods=['GET'], strict_slashes=False)
+@cross_origin()
+def room_availlable():
+    """get all room availlable """
+    room_ob: OccupationPort = OccupationAdapter()
+    room_objects = room_ob.get_available_room()
+    return make_response(jsonify(room_objects), 200)
+

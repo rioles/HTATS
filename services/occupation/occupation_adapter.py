@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, TypeVar, Union
 from domain.occupation.invoice_customer import InvoiceData, RoomOccupationData
 from domain.occupation.room_and_ocupation_data import RoomOccupationEntityData
-from domain.room.room_entity import RoomDataAgregate
+from domain.room.room_entity import RoomAvailableData, RoomDataAgregate
 from models.invoice import InvoiceStatus, Invoice
 from models.room_occupation import RoomOccupation
 from models.room_occupants import RoomOccupants
@@ -132,7 +132,7 @@ class OccupationAdapter(OccupationPort):
     def find_all_ivoice_by_customer(
         self
     ) -> T:
-        object_filter = {"invoice_status":InvoiceStatus.UNPAID.value}
+        object_filter = {"invoice_status":InvoiceStatus.UNPAID.value, "is_deleted":False}
         customers = storage.find_all_with_join(Customer, Invoice, **object_filter)
         print("my_type",type(customers[0]))
         all_invoice = all_invoice_by_client(customers)
@@ -152,7 +152,7 @@ class OccupationAdapter(OccupationPort):
         self,
         **object_meta_data: Dict[str, str]
     ) -> T:
-        invoice = storage.find_by(Invoice, **{"id":object_meta_data["invoice_id"]})
+        invoice = storage.find_by(Invoice, **{"id":object_meta_data["invoice_id"], "is_deleted":False})
         storage.update_object(Invoice,invoice.id, **{"invoice_status":InvoiceStatus.PAID.value})
         object_meta_data["settlement_amount"]= invoice.invoice_amount
         data = reformat_request_datas(object_meta_data)
@@ -171,7 +171,7 @@ class OccupationAdapter(OccupationPort):
     ) -> T:
         """
         """
-        invoice =  storage.find_by(Invoice, **{"id":object_meta_data["invoice_id"]})
+        invoice =  storage.find_by(Invoice, **{"id":object_meta_data["invoice_id"], "is_deleted":False})
         room_occupation_adapter = RoomOccupationData(invoice)
         return room_occupation_adapter.to_dict()
     
@@ -188,7 +188,7 @@ class OccupationAdapter(OccupationPort):
     ) -> T:
         """
         """
-        room = storage.find_by(Room, **{"id":object_meta_data["id"]})
+        room = storage.find_by(Room, **{"id":object_meta_data["id"], "is_deleted":False})
         room_entity_data:RoomOccupationEntityData = RoomOccupationEntityData(room)
         return room_entity_data.to_dict()
     
@@ -205,11 +205,37 @@ class OccupationAdapter(OccupationPort):
         Returns:
         - T: The room updated. 
         """
-        room_occupation = storage.find_by(RoomOccupation, **{"id":object_meta_data["room_occupation_id"]})
+        storage.update_object(RoomOccupation,object_meta_data["room_occupation_id"], **{"is_deleted":True})
         storage.update_object(Room,object_meta_data["room_id"], **{"room_status":object_meta_data["room_status"]})
-        room_occupation.delete()
         room = storage.find_by(Room, **{"id":object_meta_data["room_id"]})
-        return room.to_dict()
+        room_occupation = storage.find_by(RoomOccupation, **{"id":object_meta_data["room_occupation_id"]})
+        #return {room:room.to_dict(), room_occupation:room_occupation.to_dict()}
+        return {"room":room.to_dict(), "room_occupation":room_occupation.to_dict()}
+    
+    def get_available_room(
+        self  
+    ) -> List[RoomAvailableData]:
+        
+        rooms = storage.find_all_by(Room, **{"room_status":RoomStatus.AVAILABLE_AND_CLEAN.value, "is_deleted":False})
+        room_availlable_data = return_all_room(rooms)
+        return room_availlable_data
+    
+    def get_occupied_room(
+        self  
+    ) -> List[RoomAvailableData]:
+        
+        rooms = storage.find_all_by(Room, **{"room_status":RoomStatus.OCCUPIED.value, "is_deleted":False})
+        room_availlable_data = return_all_room(rooms)
+        return room_availlable_data
+
+        
+    def get_curent_occupied_room(
+        self  
+    ) -> List[RoomAvailableData]:
+        object_filter = {"room_status":RoomStatus.OCCUPIED.value, "is_deleted":False}
+        rooms = storage.find_all_by(Room, **{"room_status":RoomStatus.OCCUPIED.value, "is_deleted":False})
+        room_availlable_data = return_all_room(rooms)
+        return room_availlable_data
     
 #RoomOccupationEntityData
 def return_all_room_items(rooms:List[Room]):
@@ -239,6 +265,17 @@ def all_invoice_by_customer(customers:List[Customer]):
         for element in customers:
             invoice_data:InvoiceData = InvoiceData(element, include_paid)
             all_element.append(invoice_data.to_dict())
+        return all_element
+    else:
+        return []
+    
+    
+def return_all_room(rooms:List[Room]):
+    if rooms is not None:
+        all_element:List[Dict[str, Any]] = []
+        for element in rooms:
+            room_data:RoomAvailableData = RoomAvailableData(element)
+            all_element.append(room_data.to_dict())
         return all_element
     else:
         return []

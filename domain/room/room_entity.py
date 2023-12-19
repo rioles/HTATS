@@ -42,5 +42,34 @@ class RoomDataAgregate:
             if element == "room_item":
                 my_object[element] = my_dict[element]
         return my_object
+    
+@dataclass
+class RoomAvailableData:
+    room: Room = Room
+    room_category: RoomCategory = Optional[RoomCategory]
+    
+    def __post_init__(self):
+        self.room_category = self.get_category_by_id()
+    
+    def get_category_by_id(self)->RoomCategory:
+        obj: ObjectManagerInterface = ObjectManagerAdapter()
+        category_room = obj.find_object_by(RoomCategory, **{"id":self.room.room_category_id})
+        return category_room
+    
+    def to_dict(self):
+        my_dict = dict(self.__dict__)
+        key = {"room", "room_category"}
+        my_object = {}
+    
+        for element in my_dict:
+            if element in key and element is not None:
+                print(my_dict[element].to_dict())
+                my_object[element] = my_dict[element].to_dict()
+            if element == "room_item":
+                my_object[element] = my_dict[element]
+        return my_object
+    
+  
+
         
 
