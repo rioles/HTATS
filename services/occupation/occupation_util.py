@@ -116,10 +116,10 @@ def reformat_request_datas(request_data: Dict[str, str]) -> Dict[str, Dict[str, 
     request_data_reformat = {}
     
     # Keys for occupation-related data
-    settlement_key = {"settlement_amount", "payment_type_id", "payer_phone"}
+    settlement_key = {"user_id","settlement_amount", "payment_type_id", "payer_phone"}
     
     # Keys for invoice-related data
-    settlement_invoice_key = {"invoice_id", "settlement_id"}
+    settlement_invoice_key = {"user_id", "invoice_id", "settlement_id"}
     
     # Keys for occupant-related data
     
