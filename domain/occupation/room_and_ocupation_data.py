@@ -34,26 +34,26 @@ class RoomOccupationEntityData:
     def get_room_occupation_by_room(self)->RoomOccupation:
         obj: ObjectManagerInterface = ObjectManagerAdapter()
         ids = self.room
-        room_occupation = obj.find_object_by(RoomOccupation, **{"room_id":ids.id})
+        room_occupation = obj.find_object_by(RoomOccupation, **{"room_id":ids.id, "is_deleted":False})
         return room_occupation
     
     
     def get_client_by_room_occupation(self)->List[Invoice]:
         obj: ObjectManagerInterface = ObjectManagerAdapter()
         occupation = self.get_room_occupation_by_room()
-        invoice = obj.find_object_by(Invoice, **{"id":occupation.invoice_id})
-        customer_id = invoice.customer_id
-        customer = obj.find_object_by(Customer, **{"id":customer_id})        
+        invoice = obj.find_object_by(Invoice, **{"id":occupation.invoice_id}) if occupation is not None else None
+        customer_id = invoice.customer_id if invoice is not None else None
+        customer = obj.find_object_by(Customer, **{"id":customer_id}) if customer_id is not None else None      
         return customer
     
     def num_of_day(self):
         occupation = self.get_room_occupation_by_room()
-        return calculate_number_of_nights(occupation.start_date, occupation.end_date)
+        return calculate_number_of_nights(occupation.start_date, occupation.end_date) if occupation is not None else None
     
     def get_room_occupants_by_room_occupation(self)->List[Invoice]:
         obj: ObjectManagerInterface = ObjectManagerAdapter()
         occupation = self.get_room_occupation_by_room()
-        occupants = obj.find_all_with_filter(RoomOccupants, **{"occupation_id":occupation.id})        
+        occupants = obj.find_all_with_filter(RoomOccupants, **{"occupation_id":occupation.id}) if occupation is not None else None       
         return occupants
     
     
@@ -67,7 +67,7 @@ class RoomOccupationEntityData:
         keys = {"customer", "room","room_occupation"}
 
         for key in my_dict:
-            if key in keys and key is not None:
+            if key is not None and  key in keys and my_dict[key] is not None:
                 my_dict[key] = my_dict[key].to_dict()
             else:
                 my_dict[key] = my_dict[key]

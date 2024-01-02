@@ -21,3 +21,4 @@ class RoomItem(BaseModel, Base):
     item_description  = Column(Text, nullable=True)
     item_status = Column(String(128),  default=RoomItemStatus.WORKING.value)
     room_id = Column(String(60), ForeignKey('room.id'), nullable=False)
+    user_id = Column(String(60), ForeignKey('user.id'), nullable=False)

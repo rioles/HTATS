@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, TypeVar, Union
 from domain.occupation.invoice_customer import InvoiceData, RoomOccupationData
 from domain.occupation.room_and_ocupation_data import RoomOccupationEntityData
-from domain.room.room_entity import RoomAvailableData, RoomDataAgregate
+from domain.room.room_entity import RoomAvailableData, RoomDataAgregate, RoomOccupiedData
 from models.invoice import InvoiceStatus, Invoice
 from models.room_occupation import RoomOccupation
 from models.room_occupants import RoomOccupants
@@ -54,11 +54,13 @@ class OccupationAdapter(OccupationPort):
         room_occupation: RoomOccupation = ObjectManager(data).create_occupation()
         object_meta_data["occupation_id"] = room_occupation.id
         data = reformat_request_data(object_meta_data)
+        print("ocupattttt", room_occupation)
         try:
             all_object = {}
             storage.update_object(Room,room.id, **{"room_status":RoomStatus.OCCUPIED.value})
             invoice.save()
             room_occupation.save()
+            
             all_object["invoice"] = invoice.to_dict()
             all_object["room_occupation"] = room_occupation.to_dict()
             return all_object
@@ -134,7 +136,7 @@ class OccupationAdapter(OccupationPort):
     ) -> T:
         object_filter = {"invoice_status":InvoiceStatus.UNPAID.value, "is_deleted":False}
         customers = storage.find_all_with_join(Customer, Invoice, **object_filter)
-        print("my_type",type(customers[0]))
+        #print("my_type",type(customers[0])) if customers is not empty
         all_invoice = all_invoice_by_client(customers)
         return all_invoice
     
@@ -205,7 +207,9 @@ class OccupationAdapter(OccupationPort):
         Returns:
         - T: The room updated. 
         """
-        storage.update_object(RoomOccupation,object_meta_data["room_occupation_id"], **{"is_deleted":True})
+        updated_at = datetime.utcnow()
+        end_date = datetime.utcnow()
+        storage.update_object(RoomOccupation,object_meta_data["room_occupation_id"], **{"is_deleted":True,"updated_at":updated_at, "end_date":end_date})
         storage.update_object(Room,object_meta_data["room_id"], **{"room_status":object_meta_data["room_status"]})
         room = storage.find_by(Room, **{"id":object_meta_data["room_id"]})
         room_occupation = storage.find_by(RoomOccupation, **{"id":object_meta_data["room_occupation_id"]})
@@ -231,11 +235,72 @@ class OccupationAdapter(OccupationPort):
         
     def get_curent_occupied_room(
         self  
-    ) -> List[RoomAvailableData]:
-        object_filter = {"room_status":RoomStatus.OCCUPIED.value, "is_deleted":False}
-        rooms = storage.find_all_by(Room, **{"room_status":RoomStatus.OCCUPIED.value, "is_deleted":False})
-        room_availlable_data = return_all_room(rooms)
-        return room_availlable_data
+    ) -> List[RoomOccupiedData]:
+        
+        """
+            Retrieves a list of currently occupied rooms.
+            Returns:
+                List[RoomAvailableData]: A list containing data of occupied rooms.
+        """
+        date =  datetime.utcnow().date()
+        room_occupations = storage.get_curent_occupied_room(RoomOccupation, date)
+        room_occupied = return_all_room_occupied(room_occupations)
+        return room_occupied
+    
+    
+    def get_curent_ended_occupation_room(
+        self  
+    ) -> List[RoomOccupiedData]:
+        """
+            Retrieves a list of rooms that have ended their occupation based on the current UTC time.
+
+            Returns:
+                List[RoomOccupiedData]: A list containing data of rooms that have ended their occupation.
+        """
+        
+        date =  datetime.utcnow().date()
+        room_occupations = storage.get_curent_occupied_room(RoomOccupation, date, date_attribute='end_date')
+        room_occupied = return_all_room_occupied(room_occupations)
+        return room_occupied
+    
+    def get_curent_availlable_room(
+        self  
+    ) -> List[RoomOccupiedData]:
+        """
+            Retrieves a list of rooms that have ended their occupation based on the current UTC time.
+
+            Returns:
+                List[RoomOccupiedData]: A list containing data of rooms that have ended their occupation.
+        """
+        
+        date =  datetime.utcnow().date()
+        room_occupations = storage.get_curent_occupied_room(RoomOccupation, date, "updated_at",**{"is_deleted":False})
+        room_occupied = return_all_room_occupied(room_occupations)
+        return room_occupied
+    
+    def get_occupied_rooms(
+        self  
+    ) -> List[RoomOccupiedData]:
+        
+        
+        object_filter = {"is_deleted":False}
+        room_occupations = storage.find_all_by(RoomOccupation, **object_filter)
+        room_occupied = return_all_room_occupied(room_occupations)
+        return room_occupied
+    
+    def get_indisponible_rooms(
+        self  
+    ) -> List[RoomOccupiedData]:
+        
+        
+        object_filter1 = {"is_deleted":False,"room_status":RoomStatus.AVAILABLE_AND_DIRTY.value}
+        room_occupations = storage.find_all_by(RoomOccupation, **object_filter1)
+        object_filter2 = {"is_deleted":False,"room_status":RoomStatus.OUT_OF_ORDER.value}
+        room_occupations1 = storage.find_all_by(RoomOccupation, **object_filter2)
+        room_occupied = return_all_room_occupied(room_occupations)
+        room_occupied1 = return_all_room_occupied(room_occupations1)
+        room_occupied = room_occupied.extends(room_occupied1)
+        return room_occupied
     
 #RoomOccupationEntityData
 def return_all_room_items(rooms:List[Room]):
@@ -280,19 +345,29 @@ def return_all_room(rooms:List[Room]):
     else:
         return []
 
+def return_all_room_occupied(room_occupieds:List[RoomOccupation]):
+    if room_occupieds is not None:
+        all_element:List[Dict[str, Any]] = []
+        for element in room_occupieds:
+            room_data:RoomOccupiedData = RoomOccupiedData(element)
+            all_element.append(room_data.to_dict())
+        return all_element
+    else:
+        return []
 
-#filter = {"invoice_status":InvoiceStatus.UNPAID.value}
-#ivoice = storage.find_all_with_join(Customer, Invoice, **filter)
-#print(ivoice[0].to_dict())
-date_string = "2023-11-28T15:30:00"
-f_date = "2023-11-29T13:32:44"
-datetime_object = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
-datetime_object2 = datetime.strptime(f_date, "%Y-%m-%dT%H:%M:%S")
-all_room_occupied = storage.get_room_with_date_interval(RoomOccupation, datetime_object, datetime_object2)
-print(all_room_occupied)
-invoice = storage.find_by(Invoice, **{"id":""})
-#storage.update_object(Invoice,invoice.id, **{"invoice_status":InvoiceStatus.UNPAID.value})
-#a =  InvoiceData(ivoice[0])
-print(invoice)
-#print("aalal",a.get_invoice_by_customer())
-#print("dict",a.to_dict())
+"""
+def get_curent_occupied_room() -> List[RoomAvailableData]:
+        
+    
+            Retrieves a list of currently occupied rooms.
+            Returns:
+                List[RoomAvailableData]: A list containing data of occupied rooms.
+    
+        date =  datetime.utcnow().date()
+        room_occupations = storage.get_curent_occupied_room(RoomOccupation, date)
+        print(room_occupations)
+        room_occupied = return_all_room_occupied(room_occupations)
+        return room_occupied
+    
+"""
+#print(get_curent_occupied_room())

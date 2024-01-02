@@ -1,3 +1,4 @@
+from datetime import timedelta, datetime
 from flask import Flask, make_response, jsonify, redirect, request
 from flask_cors import CORS, cross_origin
 from flask_jwt_extended import JWTManager
@@ -14,6 +15,8 @@ app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 app.config['FLASK_JWT_SECRET_KEY'] = secrets.token_hex(12)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=12)
+ 
 #FLASK_JWT_SECRET_KEY= secrets.token_hex(12)
 jwt = JWTManager(app)
 cors = CORS(app, resources={r"api/v1/*": {"origins": "*"}})

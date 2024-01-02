@@ -22,3 +22,4 @@ class Invoice(BaseModel, Base):
     customer_id = Column(String(60), ForeignKey('customer.id'), nullable=False)
     settlements = relationship("Settlement", secondary="settlement_invoice", back_populates="invoices")
     customer = relationship('Customer', back_populates='invoices')
+    user_id = Column(String(60), ForeignKey('user.id'), nullable=False)

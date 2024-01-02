@@ -12,5 +12,5 @@ class SettlementInvoice(BaseModel, Base):
     __tablename__ = 'settlement_invoice'
     invoice_id = Column(String(60), ForeignKey('invoice.id'),nullable=False)
     settlement_id = Column(String(60), ForeignKey('settlement.id'), nullable=False)
-    
+    user_id = Column(String(60), ForeignKey('user.id'), nullable=False)
     

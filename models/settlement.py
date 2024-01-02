@@ -15,4 +15,4 @@ class Settlement(BaseModel, Base):
     payer_phone = Column(String(128), nullable=True)
     invoices = relationship("Invoice", secondary="settlement_invoice", back_populates="settlements")
     payment_type_id = Column(String(60), ForeignKey('payment_type.id'), nullable=False)
-    
+    user_id = Column(String(60), ForeignKey('user.id'), nullable=False)

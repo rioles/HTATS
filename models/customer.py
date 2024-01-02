@@ -14,3 +14,4 @@ class Customer(BasePerson, Base):
     customer_invoice = relationship("Invoice", backref="Customer", cascade="delete")
     customer_type_id = Column(String(60), ForeignKey('type_custormer.id'), nullable=False)
     invoices = relationship('Invoice', back_populates='customer')
+    user_id = Column(String(60), ForeignKey('user.id'), nullable=False)

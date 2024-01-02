@@ -21,4 +21,4 @@ class Room(BaseModel, Base):
     room_amount = Column(Numeric(10, 2), nullable=False)
     room_status = Column(String(128),  default=RoomStatus.AVAILABLE_AND_CLEAN.value)
     room_category_id = Column(String(60), ForeignKey('room_category.id'), nullable=False)
-    
+    user_id = Column(String(60), ForeignKey('user.id'), nullable=False)

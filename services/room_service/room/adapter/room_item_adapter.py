@@ -82,8 +82,8 @@ class RoomItemAdapter(RoomItemPort):
             room-related and room item-related data are organized within respective sub-dictionaries.
         """
         request_data_reformat = {}
-        room_item_element = {"room_item_label", "room_id", "room_status", "room_category_id"}
-        room_dat_element = {"room_label", "room_amount","room_status", "room_category_id"}
+        room_item_element = {"user_id","room_item_label", "room_id", "room_status", "room_category_id"}
+        room_dat_element = {"user_id","room_label", "room_amount","room_status", "room_category_id"}
         
         room_data = return_element(room_dat_element, request_data)
         room_item_data = return_element(room_item_element, request_data)     
@@ -116,13 +116,13 @@ class RoomItemAdapter(RoomItemPort):
         room_object: T,
         ) -> List[Dict[str, Any]]:
         """
-        Retrieve all client data for a specific customer object.
+        Retrieve all room data .
 
         Args:
-            customer_object (Type): The specific customer object for which to retrieve data.
+            room_object (Dict[str,Any]): The specific room object for which to retrieve data.
 
         Returns:
-            List[Dict[str, Any]]: A list of dictionaries containing client data for the specified customer.
+            List[Dict[str, Any]]: A list of dictionaries containing Room data .
 
         Raises:
             Any specific exceptions raised during the data retrieval process.

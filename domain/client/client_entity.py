@@ -47,6 +47,7 @@ class ClientData:
     def map_customer_entity_to_customer_orm(self)-> Customer:
         customer_orm: Customer = Customer(
         id = self.id,
+        user_id = self.user_id,
         last_name = self.customer.last_name,
         first_name = self.customer.first_name,
         gender = self.customer.gender,

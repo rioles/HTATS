@@ -21,6 +21,7 @@ class Booking(BaseModel, Base):
     start_date =  Column(DateTime)
     end_date = Column(DateTime)
     invoice_id = Column(String(60), ForeignKey('invoice.id'), nullable=False)
+    user_id = Column(String(60), ForeignKey('user.id'), nullable=False)
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

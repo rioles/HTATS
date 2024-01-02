@@ -34,6 +34,7 @@ class RoomEntity:
     def map_room_entity_to_room_orm(self)-> Room:
         room_orm: Room = Room(
             id = self.id,
+            user_id = self.room.user_id,
             room_status = self.room_status.value if self.room_status is not None else RoomStatus.AVAILABLE_AND_CLEAN.value,
             room_label = self.room.room_label,
             room_category_id = self.room_category.id,

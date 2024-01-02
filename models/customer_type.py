@@ -1,5 +1,5 @@
 import sqlalchemy
-from sqlalchemy import Column, String, DateTime, Integer
+from sqlalchemy import Column, String, ForeignKey
 from typing import TypeVar, List, Iterable
 from os import path
 from datetime import datetime

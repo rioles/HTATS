@@ -17,6 +17,7 @@ from services.room_service.room_category_manager.adapter.room_category_adapter i
 
 @app_views.route('/occupation', methods=['POST'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def get_room_not_occupied():
     """create a new category"""
     if not request.get_json():
@@ -27,13 +28,14 @@ def get_room_not_occupied():
     room = obj.find_object_by_intervall(RoomOccupation,request.get_json()["start_date"], request.get_json()["end_date"], Room)
     page_obj = Paginator(room)
     page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
-    per_page = request.args.get('per_page', default=10, type=int)  # Get the per_page parameter from the request query string
+    per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
     result = page_obj.get_hyper(page, per_page)
     return make_response(jsonify(result), 200)
 
 
 @app_views.route('/invoice', methods=['POST'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def post_invoice():
     """create a new category"""
     if not request.get_json():
@@ -47,6 +49,7 @@ def post_invoice():
 
 @app_views.route('/occupant', methods=['POST'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def post_room_occupant():
     """create a new category"""
     if not request.get_json():
@@ -66,7 +69,7 @@ def get_invoice_with_customer():
     invoices = obj.find_all_ivoice_by_customer()
     page_obj = Paginator(invoices)
     page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
-    per_page = request.args.get('per_page', default=10, type=int)  # Get the per_page parameter from the request query string
+    per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
     result = page_obj.get_hyper(page, per_page)
     return make_response(jsonify(result), 200)
 
@@ -74,6 +77,7 @@ def get_invoice_with_customer():
 
 @app_views.route('/make_payment', methods=['POST'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def make_payment():
     if not request.get_json():
         return make_response(jsonify(
@@ -85,18 +89,20 @@ def make_payment():
 
 @app_views.route('/invoices', methods=['GET'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def get_invoice_by_customer():
     obj:OccupationPort = OccupationAdapter()
     invoices = obj.find_all_both_ivoice_by_customer()
     page_obj = Paginator(invoices)
     page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
-    per_page = request.args.get('per_page', default=10, type=int)  # Get the per_page parameter from the request query string
+    per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
     result = page_obj.get_hyper(page, per_page)
     return make_response(jsonify(result), 200)
 
 
 @app_views.route('/room_and_occupation', methods=['POST'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def get_room_occupation_by_invoice():
     obj:OccupationPort = OccupationAdapter()
     room_occupation_adapter = obj.get_occupation_and_room_by_invoice(**request.get_json())
@@ -104,6 +110,7 @@ def get_room_occupation_by_invoice():
 
 @app_views.route('/room_and_occupants', methods=['POST'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def get_room():
     """create a new client"""
     if not request.get_json():
@@ -117,6 +124,7 @@ def get_room():
 
 @app_views.route('/update_room', methods=['POST'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def update_room():
     """create a new client"""
     if not request.get_json():
@@ -129,9 +137,43 @@ def update_room():
 
 @app_views.route('/room_availlable', methods=['GET'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def room_availlable():
     """get all room availlable """
     room_ob: OccupationPort = OccupationAdapter()
     room_objects = room_ob.get_available_room()
-    return make_response(jsonify(room_objects), 200)
+    page_obj = Paginator(room_objects)
+    page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
+    per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
+    result = page_obj.get_hyper(page, per_page)
+    return make_response(jsonify(result), 200)
+  
+
+
+@app_views.route('/current_ended_room', methods=['GET'], strict_slashes=False)
+@cross_origin()
+@jwt_required()
+def current_ended_room():
+    """get all room availlable """
+    room_ob: OccupationPort = OccupationAdapter()
+    room_objects = room_ob.get_curent_ended_occupation_room()
+    page_obj = Paginator(room_objects)
+    page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
+    per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
+    result = page_obj.get_hyper(page, per_page)
+    return make_response(jsonify(result), 200)
+
+@app_views.route('/current_occupied_room', methods=['GET'], strict_slashes=False)
+@cross_origin()
+@jwt_required()
+def current_occupied_room():
+    """get all room availlable """
+    room_ob: OccupationPort = OccupationAdapter()
+    room_objects = room_ob.get_curent_occupied_room()
+    page_obj = Paginator(room_objects)
+    page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
+    per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
+    result = page_obj.get_hyper(page, per_page)
+    return make_response(jsonify(result), 200)
+
 

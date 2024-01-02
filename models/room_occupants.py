@@ -12,5 +12,5 @@ class RoomOccupants(BasePerson, Base):
     __tablename__ = 'room_occupants'
     occupation_id = Column(String(60), ForeignKey('room_occupation.id'), nullable=False)
     #occupation_id = Column(String(60), ForeignKey('room_occupation.id'), nullable=False)
-
+    user_id = Column(String(60), ForeignKey('user.id'), nullable=False)
     

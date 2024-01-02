@@ -1,5 +1,6 @@
 from api.v1.endpoints import app_views
 from flask_cors import cross_origin
+from datetime import timedelta, datetime
 from flask import abort, jsonify, make_response, request
 from models.role import Role
 from models.token_block_list import TokenBlockList
@@ -7,7 +8,9 @@ from models.user_role import UserRoles
 from services.object_manager_adapter import ObjectManagerAdapter
 from services.paginator import Paginator
 from models.user import User
-from flask_jwt_extended import create_access_token, jwt_required, create_refresh_token, get_jwt_identity,get_jwt
+from models.login_history import LoginHistory
+from datetime import datetime
+from flask_jwt_extended import create_access_token, jwt_required, create_refresh_token, get_jwt_identity,get_jwt,decode_token
 
 
 from services.object_manager_interface import ObjectManagerInterface
@@ -63,11 +66,16 @@ def login_handler():
             {'status': '401', 'message': 'The request data is empty'}), 400)
     user_manager:UserManagerInterface = UserAdapter() 
     user = user_manager.get_user_log(**request.get_json())
+    obj:ObjectManagerInterface = ObjectManagerAdapter()
     print(user)
     if user is not None:
-        access_token = create_access_token(identity=user["user"]["email"])
+        access_token = create_access_token(identity=user["user"]["email"], expires_delta=timedelta(hours=12))
         refresh_token = create_refresh_token(identity=user["user"]["email"])
+        decoded_token = decode_token(access_token)
+        print("acess tokii",decoded_token)
         response_data = {'access_token': access_token, 'refresh_token': refresh_token, 'user': user}
+        connexion_metadata = {"user_id":user["user"]["id"], "login_timestamp": datetime.utcnow()}
+        obj.add_object(LoginHistory, **connexion_metadata)
         return make_response(jsonify(response_data), 200)
     else:
         return make_response(jsonify({'status': '404', 'message': f'no user with email {request.get_json()["email"]} or password  exists'}), 400)
@@ -109,12 +117,15 @@ def revoke_token():
     jwt_data = {"jti":jti}
     obj: ObjectManagerInterface = ObjectManagerAdapter()
     token_revok = obj.add_object(TokenBlockList, **jwt_data)
+    user_manager:UserManagerInterface = UserAdapter() 
+    user = user_manager.get_user_log(**request.get_json()["email"])
+    connexion_metadata = {"logout_timestamp": datetime.utcnow()}
+    obj.update_object_in_storage(LoginHistory, user["user"]["id"], **connexion_metadata)
     return make_response(jsonify(token_revok.to_dict()), 201)
-
-
 
 @app_views.route('/whoami', methods=['GET'], strict_slashes=False)
 @cross_origin()
 @jwt_required()
 def whoami():
     return make_response(jsonify({"message":"yako"}))
+

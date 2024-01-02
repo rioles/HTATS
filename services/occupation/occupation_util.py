@@ -34,13 +34,13 @@ def reformat_request_data(request_data: Dict[str, str]) -> Dict[str, Dict[str, s
     request_data_reformat = {}
     
     # Keys for occupation-related data
-    occupation_key = {"room_id", "start_date", "end_date", "invoice_id"}
+    occupation_key = {"user_id","room_id", "start_date", "end_date", "invoice_id"}
     
     # Keys for invoice-related data
-    invoice_key = {"invoice_number", "invoice_amount", "invoice_status", "customer_id"}
+    invoice_key = {"user_id","invoice_number", "invoice_amount", "invoice_status", "customer_id"}
     
     # Keys for occupant-related data
-    occupant_key = {"first_name", "last_name", "occupation_id", "gender", "phone_number",
+    occupant_key = {"user_id","first_name", "last_name", "occupation_id", "gender", "phone_number",
                     "date_of_birth", "email", "document_number", "type_of_document", "institute_name"}
     
     # Extracting data for each category

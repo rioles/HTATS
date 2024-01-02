@@ -3,7 +3,7 @@ import os
 from sqlalchemy import asc
 from sqlalchemy import Column, String, DateTime,func, create_engine, Numeric, ForeignKey, Text, or_, and_
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
-from typing import Any, Dict, Optional, TypeVar, Union
+from typing import Any, Dict, List, Optional, TypeVar, Union
 from sqlalchemy.orm.exc import NoResultFound
 from repository.hotel_reservation_crud_port import HotelReservationCrudPort
 from models.basic_base import Base
@@ -27,8 +27,9 @@ from models.role import Role
 from models.user import User
 from models.user_role import UserRoles
 from models.role_permission import RolePermissions
+from models.login_history import LoginHistory
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from models.token_block_list import TokenBlockList
 from sqlalchemy.orm import joinedload
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S"
@@ -264,7 +265,58 @@ class DBSManager(HotelReservationCrudPort):
     def close(self)-> None :
         """call remove() method on the private session attribute"""
         self.__session.remove()
-       
+    
+    def get_curent_occupied_room(
+            self,
+            target_class: T,
+            current_date: date,
+            order_by: str = 'asc',
+            date_attribute: str = "created_at"
+    ) -> List[T]:
+        # Specify order based on the 'order_by' parameter
+        order_clause = getattr(target_class.created_at, order_by)()
+
+        # Query for rows created on the current date and is_deleted=False
+        query_result = self.__session.query(target_class).filter(
+            getattr(target_class, date_attribute) >= current_date,
+            getattr(target_class, date_attribute) < current_date + timedelta(days=1),
+            target_class.is_deleted == False
+        ).order_by(order_clause).all()
+
+        return query_result
+
+    def get_curent_occupieds_room(
+            self,
+            target_class: T,
+            order_by: str = 'asc',
+            **kwargs: Dict[str, Any],
+    ) -> List[T]:
+        # Specify order based on the 'order_by' parameter
+        order_clause = getattr(target_class, order_by)()
+
+        filter_criteria = {
+            getattr(target_class, key): getattr(target_class, value) if isinstance(value, str) else value
+            for key, value in kwargs.items()
+        }
+
+        # Check if either 'created_at' or 'ended_at' is provided in kwargs
+        attribute_name = next((key for key in {'created_at', 'updated_at', 'end_date', 'start_date'} if key in kwargs), None)
+
+        # Construct filter criteria based on the provided kwargs
+        if attribute_name:
+            filter_criteria.update({
+                getattr(target_class, attribute_name) >= datetime.utcnow().date(),
+                getattr(target_class, attribute_name) < datetime.utcnow().date() + timedelta(days=1),
+            })
+
+        
+        
+        
+
+        # Query for rows based on filter criteria
+        query_result = self.__session.query(target_class).filter(**filter_criteria.values()).order_by(order_clause).all()
+
+        return query_result
 
 def convert_to_timestamp(date_str: str) -> Union[None, datetime]:
     try:

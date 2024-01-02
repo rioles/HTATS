@@ -39,6 +39,7 @@ class RoomData:
     def map_room_item_entity_to_room_item_orm(self)-> RoomItem:
         room_item: RoomItem = RoomItem(
             id = self.id,
+            user_id = self.room_item.user_id,
             room_item_label = self.room_item.room_item_label,
             item_type = self.room_item.item_type,
             item_description = self.room_item.item_description,

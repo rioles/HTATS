@@ -1,10 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
-from domain.room.room import RoomEntity
-from domain.room.room_item_status_value_object import RoomItemStatusValueObject
 from models.room_category import RoomCategory
-from models.room import Room
-from models.room_item import RoomItem, RoomItemStatus
+from models.room import Room, RoomStatus
+from models.room_occupation import RoomOccupation
 from services.object_manager_adapter import ObjectManagerAdapter
 from services.object_manager_interface import ObjectManagerInterface
 from models.room_item import RoomItem
@@ -67,6 +65,39 @@ class RoomAvailableData:
                 my_object[element] = my_dict[element].to_dict()
             if element == "room_item":
                 my_object[element] = my_dict[element]
+        return my_object
+
+
+
+@dataclass
+class RoomOccupiedData:
+    room_occupation:RoomOccupation
+    room: Room = Optional[Room]
+    room_category: RoomCategory = Optional[RoomCategory]
+    
+    def __post_init__(self):
+        self.room_category = self.get_category_by_id()
+        self.room = self.get_room_by_category_room()
+    
+    def get_room_by_category_room(self)->RoomCategory:
+        obj: ObjectManagerInterface = ObjectManagerAdapter()
+        room = obj.find_object_by(Room, **{"id":self.room_occupation.room_id, "is_deleted":False,"room_status":RoomStatus.OCCUPIED.value})
+        return room
+    
+    def get_category_by_id(self)->RoomCategory:
+        obj: ObjectManagerInterface = ObjectManagerAdapter()
+        room = self.get_room_by_category_room()
+        category_room = obj.find_object_by(RoomCategory, **{"id":room.room_category_id}) if room is not None else None
+        return category_room
+    
+    def to_dict(self):
+        my_dict = dict(self.__dict__)
+        key = {"room", "room_category"}
+        my_object = {}
+    
+        for element in my_dict:
+            if element is not None and element in key:
+                my_object[element] = my_dict[element].to_dict()
         return my_object
     
   

@@ -119,5 +119,30 @@ class OccupationPort(ABC):
     def get_available_room(
         self 
     ) -> List[RoomAvailableData]:
-        pass
+        """
+            Retrieves a list of currently available and clean rooms.
+
+            Returns:
+                List[RoomAvailableData]: A list containing data of available rooms.
+        """
+    
+    def get_curent_occupied_room(
+        self  
+    ) -> List[T]:
+        
+        """
+            Retrieves a list of currently occupied rooms.
+            Returns:
+                List[RoomAvailableData]: A list containing data of occupied rooms.
+        """
+    
+    def get_curent_ended_occupation_room(
+        self  
+    ) -> List[T]:
+        """
+            Retrieves a list of rooms that have ended their occupation based on the current UTC time.
+
+            Returns:
+                List[RoomOccupiedData]: A list containing data of rooms that have ended their occupation.
+        """
         

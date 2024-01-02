@@ -14,3 +14,4 @@ class RoomCategory(BaseModel, Base):
     room_category_label = Column(String(128), unique=True, nullable=False)
     place_number = Column(String(128), nullable=False)
     rooms = relationship('Room', backref='category')
+    user_id = Column(String(60), ForeignKey('user.id'), nullable=False)

@@ -10,12 +10,14 @@ from services.room_service.room.port.room_port import RoomPort
 from services.room_service.room.adapter.create_room_adapter import AddRoom
 from models.customer import Customer
 from models.customer_type import CustormerType
+from flask_jwt_extended import  jwt_required
 
 
 from services.object_manager_interface import ObjectManagerInterface
 from services.room_service.room_category_manager.adapter.room_category_adapter import CreateCategoryRoom
 @app_views.route('/client', methods=['POST'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def post_client():
     """create a new category"""
     if not request.get_json():
@@ -30,6 +32,7 @@ def post_client():
 
 @app_views.route('/client/<string:client_id>', methods=['GET'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def get_client(client_id):
     """create a new client"""
     print(client_id)
@@ -43,6 +46,7 @@ def get_client(client_id):
 
 @app_views.route('/client_by_phone/<string:phone_number>', methods=['GET'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def get_client_by_phone(phone_number):
     """create a new client"""
     print(phone_number)
@@ -58,6 +62,7 @@ def get_client_by_phone(phone_number):
 
 @app_views.route('/clients', methods=['GET'], strict_slashes=False)
 @cross_origin()
+@jwt_required()
 def get_clients():
     """create a new client"""
     customer: CustormPort = CustomerAdapter()

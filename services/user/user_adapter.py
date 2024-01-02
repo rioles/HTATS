@@ -11,6 +11,7 @@ from models import storage
 from models.user_role import UserRoles
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import InvalidRequestError
+from models.employee import Employee
 
 T = TypeVar('T')
 
@@ -79,7 +80,8 @@ class UserAdapter(UserManagerInterface):
         if user is not None and valid_login(user, object_meta_data["hashed_password"]):
             user_role = storage.find_by(UserRoles, **{"user_id":user.id})
             role = storage.find_by(Role, **{"id":user_role.role_id})
-            return {"user": user.to_dict(), "role":role.to_dict()}
+            employee = storage.find_by(Employee, **{"user_id":user.id})
+            return {"user": user.to_dict(), "role":role.to_dict(), "employee":employee.to_dict()}
         else:
             return None
     
