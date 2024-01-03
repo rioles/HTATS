@@ -323,11 +323,11 @@ class DBSManager(HotelReservationCrudPort):
     def get_sum_with_filter_and_interval(
         self, 
         target_class: T,
+        start_date: datetime,
+        end_date: datetime,
         sum_param1: str,
         sum_param2: str = None,
-        start_date: datetime = None,
-        end_date: datetime = None,
-        **kwargs: Dict[str, Any]
+        **kwargs: Dict[str, Any],
         ) -> Any:
         """
         Calculate the sum based on the provided sum parameters and filter conditions.
@@ -355,8 +355,8 @@ class DBSManager(HotelReservationCrudPort):
         # Add date_column filtering conditions
         if start_date and end_date:
             query = query.filter(
-                target_class.date_column >= start_date,
-                target_class.date_column <= end_date
+                target_class.created_at >= start_date,
+                target_class.created_at <= end_date
             )
 
         # Add additional filter conditions
