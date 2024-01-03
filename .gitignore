@@ -1,5 +1,6 @@
 # Ignore configuration files
 .env
+setup_mysql_dev.sql
 # Ignore Editor-specific files
 .vscode/
 venv/

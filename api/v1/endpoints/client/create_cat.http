@@ -1,6 +1,6 @@
-POST https://dadb-137-255-39-197.ngrok-free.app/api/v1/category_client
+POST https://8a1a-137-255-39-197.ngrok-free.app/api/v1/type_paiement
 content-type: application/json
 
 {
-    "type_custormer": "Morale"
+    "label": "espèce"
 }

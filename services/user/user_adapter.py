@@ -1,5 +1,6 @@
 from typing import Any, Dict, TypeVar, List
 from domain.users.user_entity import UserEntity
+from models.login_history import LoginHistory
 from models.role import Role
 from services.object_manager_adapter import ObjectManagerAdapter
 from services.object_manager_interface import ObjectManagerInterface
@@ -77,6 +78,7 @@ class UserAdapter(UserManagerInterface):
     ) -> T:
         
         user = storage.find_by(User, **{"email":object_meta_data["email"]})
+        print("user", user)
         if user is not None and valid_login(user, object_meta_data["hashed_password"]):
             user_role = storage.find_by(UserRoles, **{"user_id":user.id})
             role = storage.find_by(Role, **{"id":user_role.role_id})
@@ -93,6 +95,19 @@ class UserAdapter(UserManagerInterface):
         print(users)
         all_users = return_all_user(users)
         return all_users
+    
+    def get_user_logout(
+        self,
+        **object_meta_data: Dict[str, str]
+    ) -> T:
+        
+        user = storage.find_by(User, **{"email":object_meta_data["email"]})
+        print("user", user)
+        if user is not None:
+            login_history = storage.find_by(LoginHistory, **{"user_id":user.id})
+            return {"user": user.to_dict(), "login_history":login_history.to_dict()}
+        else:
+            return None
             
 
 def _hash_password(password: str) -> bytes:

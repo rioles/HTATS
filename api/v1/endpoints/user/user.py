@@ -117,10 +117,10 @@ def revoke_token():
     jwt_data = {"jti":jti}
     obj: ObjectManagerInterface = ObjectManagerAdapter()
     token_revok = obj.add_object(TokenBlockList, **jwt_data)
-    user_manager:UserManagerInterface = UserAdapter() 
-    user = user_manager.get_user_log(**request.get_json()["email"])
+    user_manager:UserManagerInterface = UserAdapter()
+    user = user_manager.get_user_logout(**request.get_json())
     connexion_metadata = {"logout_timestamp": datetime.utcnow()}
-    obj.update_object_in_storage(LoginHistory, user["user"]["id"], **connexion_metadata)
+    obj.update_object_in_storage(LoginHistory, user["login_history"]["id"], **connexion_metadata)
     return make_response(jsonify(token_revok.to_dict()), 201)
 
 @app_views.route('/whoami', methods=['GET'], strict_slashes=False)

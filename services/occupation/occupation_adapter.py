@@ -155,7 +155,6 @@ class OccupationAdapter(OccupationPort):
         **object_meta_data: Dict[str, str]
     ) -> T:
         invoice = storage.find_by(Invoice, **{"id":object_meta_data["invoice_id"], "is_deleted":False})
-        storage.update_object(Invoice,invoice.id, **{"invoice_status":InvoiceStatus.PAID.value})
         object_meta_data["settlement_amount"]= invoice.invoice_amount
         data = reformat_request_datas(object_meta_data)
         settlement:Settlement = ObjectManagerInvoice(data).create_settelement()
@@ -164,6 +163,7 @@ class OccupationAdapter(OccupationPort):
         settlemen_invoice:SettlementInvoice = ObjectManagerInvoice(data).create_settlement_invoice()
         settlement.save()
         settlemen_invoice.save()
+        storage.update_object(Invoice,invoice.id, **{"invoice_status":InvoiceStatus.PAID.value})
         invoice = storage.find_by(Invoice, **{"id":object_meta_data["invoice_id"]})
         return {"settlement":settlement.to_dict(), "settlemen_invoice":settlemen_invoice.to_dict(), "invoice":invoice.to_dict()}
 

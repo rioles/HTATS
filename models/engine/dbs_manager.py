@@ -317,6 +317,53 @@ class DBSManager(HotelReservationCrudPort):
         query_result = self.__session.query(target_class).filter(**filter_criteria.values()).order_by(order_clause).all()
 
         return query_result
+    
+    
+    
+    def get_sum_with_filter_and_interval(
+        self, 
+        target_class: T,
+        sum_param1: str,
+        sum_param2: str = None,
+        start_date: datetime = None,
+        end_date: datetime = None,
+        **kwargs: Dict[str, Any]
+        ) -> Any:
+        """
+        Calculate the sum based on the provided sum parameters and filter conditions.
+    
+        Args:
+            target_class (Type[YourClass]): The class representing the database table.
+            sum_param1 (str, required): The first sum parameter attribute name.
+            sum_param2 (str, optional): The second sum parameter attribute name. Defaults to None.
+            start_date (datetime, optional): The start of the day for date_column filtering.
+            end_date (datetime, optional): The current date and time for date_column filtering.
+            **kwargs: Additional filter conditions as keyword arguments.
+
+        Returns:
+            Any: The calculated sum based on the sum parameters and filter conditions.
+        """
+        if not hasattr(target_class, sum_param1) or (sum_param2 and not hasattr(target_class, sum_param2)):
+            raise AttributeError(f"{target_class.__name__} does not have attribute '{sum_param1}' or '{sum_param2}'.")
+
+        query_params = [getattr(target_class, sum_param1)]
+        if sum_param2:
+            query_params.append(getattr(target_class, sum_param2))
+
+        query = self.__session.query(func.sum(*query_params))
+
+        # Add date_column filtering conditions
+        if start_date and end_date:
+            query = query.filter(
+                target_class.date_column >= start_date,
+                target_class.date_column <= end_date
+            )
+
+        # Add additional filter conditions
+        query = query.filter_by(**kwargs)
+
+        total_sum = query.scalar()
+        return total_sum
 
 def convert_to_timestamp(date_str: str) -> Union[None, datetime]:
     try:

@@ -122,6 +122,31 @@ class HotelReservationCrudPort(ABC):
     def close(self)-> None :
         """call remove() method on the private session attribute"""
         self.__session.remove()
+        
+    @abstractmethod    
+    def get_sum_with_filter_and_interval(
+        self, 
+        target_class: T,
+        sum_param1: str,
+        sum_param2: str = None,
+        start_date: datetime = None,
+        end_date: datetime = None,
+        **kwargs: Dict[str, Any]
+        ) -> Any:
+        """
+        Calculate the sum based on the provided sum parameters and filter conditions.
+    
+        Args:
+            target_class (Type[YourClass]): The class representing the database table.
+            sum_param1 (str, required): The first sum parameter attribute name.
+            sum_param2 (str, optional): The second sum parameter attribute name. Defaults to None.
+            start_date (datetime, optional): The start of the day for date_column filtering.
+            end_date (datetime, optional): The current date and time for date_column filtering.
+            **kwargs: Additional filter conditions as keyword arguments.
+
+        Returns:
+            Any: The calculated sum based on the sum parameters and filter conditions.
+        """
   
 
 

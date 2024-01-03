@@ -23,7 +23,7 @@ class UserManagerInterface(ABC):
         Raises:
             Exception: If the user_object dictionary is empty.
     """
-
+    @abstractmethod
     def get_user_log(
         self,
         current_class: T,
@@ -42,7 +42,7 @@ class UserManagerInterface(ABC):
         Raises:
             Exception: If the user_object dictionary is empty.
     """
-    
+    @abstractmethod
     def find_all_users_entities(self) -> T:
         """
         Retrieve all User objects from the storage, print the type of the first user,
@@ -51,3 +51,9 @@ class UserManagerInterface(ABC):
         Returns:
         T: Processed user data.
         """
+    @abstractmethod    
+    def get_user_logout(
+        self,
+        **object_meta_data: Dict[str, str]
+    ) -> T:
+        pass
