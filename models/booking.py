@@ -13,14 +13,17 @@ class BookingStatus(Enum):
     PENDING = 'Pending'
     CANCELLED = 'Cancelled'
     PROGRESS = 'progress'
+    COMPLETE= 'Complete'
 
 class Booking(BaseModel, Base):
     __tablename__ = 'booking'
     booking_status = Column(String(128), nullable=False)
-    booking_price =  Column(Numeric(10, 2), nullable=False)
+    booking_price =  Column(Numeric(10, 2), nullable=True)
+    room_id = Column(String(60), ForeignKey('room.id'), nullable=False)
+    percentage =  Column(Numeric(10, 2), nullable=True)
     start_date =  Column(DateTime)
     end_date = Column(DateTime)
-    invoice_id = Column(String(60), ForeignKey('invoice.id'), nullable=False)
+    invoice_id = Column(String(60), ForeignKey('invoice.id'), nullable=True)
     user_id = Column(String(60), ForeignKey('user.id'), nullable=False)
     
     def __init__(self, *args, **kwargs):
@@ -29,4 +32,8 @@ class Booking(BaseModel, Base):
             self.start_date = datetime.strptime(self.start_date, TIMESTAMP_FORMAT)
         if isinstance(self.end_date, str):
             self.end_date = datetime.strptime(self.end_date, TIMESTAMP_FORMAT)
+        self.start_date = datetime.strptime(self.start_date, TIMESTAMP_FORMAT)
+        self.end_date = datetime.strptime(self.end_date, TIMESTAMP_FORMAT)
+        
+        
     

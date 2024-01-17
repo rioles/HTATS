@@ -35,7 +35,6 @@ class ClientData:
     def get_phone_number(self):
         phone_number: PhoneNumber = PhoneNumber(self.customer.phone_number)
         return phone_number
-        
     
     def get_client_type_by_id(self)->CustormerType:
         obj: ObjectManagerInterface = ObjectManagerAdapter()

@@ -13,6 +13,8 @@ class RoomStatus(Enum):
     AVAILABLE_AND_CLEAN = 'Available_and_clean'
     AVAILABLE_AND_DIRTY = 'Available_and_dirty'
     OUT_OF_ORDER = 'Out_of_order'
+    RESERVED = 'Reserved'
+    RESERVED_AND_CONFIRMED = 'Reserved_and_confirmed'
     
 
 class Room(BaseModel, Base):

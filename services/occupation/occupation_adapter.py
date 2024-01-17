@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, TypeVar, Union
 from domain.occupation.invoice_customer import InvoiceData, RoomOccupationData
 from domain.occupation.room_and_ocupation_data import RoomOccupationEntityData
 from domain.room.room_entity import RoomAvailableData, RoomDataAgregate, RoomOccupiedData
+from models.booking import Booking, BookingStatus
 from models.invoice import InvoiceStatus, Invoice
 from models.room_occupation import RoomOccupation
 from models.room_occupants import RoomOccupants
@@ -38,12 +39,14 @@ class OccupationAdapter(OccupationPort):
     
     """
         room = storage.find_by(Room, id = object_meta_data["room_id"])
+        booking = storage.find_by(Booking, **{"room_id":object_meta_data["room_id"], "booking_status":BookingStatus.CONFIRMED.value, "is_deleted":False})
         random_strategy = RandomPartStrategy()
         invoice_generator = InvoiceNumberGenerator(random_strategy)
         number_of_day = calculate_number_of_nights(object_meta_data["start_date"], object_meta_data["end_date"])
         invoice_number = invoice_generator.generate_invoice_number()
         object_meta_data["invoice_number"] = invoice_number
-        object_meta_data["invoice_amount"] = room.room_amount * number_of_day
+        object_meta_data["invoice_amount"] = room.room_amount * number_of_day if booking is None else (room.room_amount * number_of_day) - reservation.booking_price
+        
         object_meta_data["invoice_status"] = InvoiceStatus.UNPAID.value
         
         data = reformat_request_data(object_meta_data)
@@ -60,7 +63,8 @@ class OccupationAdapter(OccupationPort):
             storage.update_object(Room,room.id, **{"room_status":RoomStatus.OCCUPIED.value})
             invoice.save()
             room_occupation.save()
-            
+            if booking is not None:
+                storage.update_object(Booking,booking.id, **{"booking_status":BookingStatus.COMPLETE.value})
             all_object["invoice"] = invoice.to_dict()
             all_object["room_occupation"] = room_occupation.to_dict()
             return all_object
@@ -121,7 +125,7 @@ class OccupationAdapter(OccupationPort):
             The  object, if found.
         """
         all_room_occupied = storage.get_room_with_date_interval(object_class, start_date, end_date)
-        all_rooms = storage.find_all_by(Room, **{"room_status":RoomStatus.AVAILABLE_AND_CLEAN.value})
+        all_rooms = storage.find_all_by(Room, **{"is_deleted": False})
         occupied_room_ids = [room.room_id for room in all_room_occupied]
         all_room_ids = [room.id for room in all_rooms]
         
@@ -191,7 +195,7 @@ class OccupationAdapter(OccupationPort):
         """
         """
         room = storage.find_by(Room, **{"id":object_meta_data["id"], "is_deleted":False})
-        room_entity_data:RoomOccupationEntityData = RoomOccupationEntityData(room)
+        room_entity_data:RoomOccupationEntityData = RoomOccupationEntityData(object_meta_data["room_status"],room)
         return room_entity_data.to_dict()
     
     def vacate_room(
@@ -302,6 +306,9 @@ class OccupationAdapter(OccupationPort):
         room_occupied = room_occupied.extends(room_occupied1)
         return room_occupied
     
+    
+    
+
 #RoomOccupationEntityData
 def return_all_room_items(rooms:List[Room]):
     if rooms is not None:

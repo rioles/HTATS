@@ -364,9 +364,135 @@ class DBSManager(HotelReservationCrudPort):
 
         total_sum = query.scalar()
         return total_sum
+    
+    
+    def get_object_by_date_interval_and_filter(
+        self,
+        target_class: T,
+        start_date: datetime,
+        end_date: datetime,
+        order_by: str = 'created_at',
+        **kwargs: Dict[str, Any]
+    ) -> List:
+        """
+        Get settlements objects by interval and filter.
+
+        Parameters:
+        - target_class (Type): The class of the target object.
+        - start_date (datetime): The start date of the interval.
+        - end_date (datetime): The end date of the interval.
+        - order_by (str): The field to order the results by (default: 'created_at').
+        - kwargs (Dict[str, Any]): Additional filters.
+
+        Returns:
+        - List: A list of SQLAlchemy objects.
+        """
+        order_clause = getattr(target_class, order_by)
+        
+        conditions = [
+            target_class.created_at >= start_date  if start_date is not None else True,
+            target_class.created_at <= end_date
+        ]
+        
+        #conditions = [
+            #or_(
+                #and_(target_class.created_at >= start_date, target_class.created_at < end_date),
+                #and_(target_class.created_at > start_date, target_class.created_at <= end_date),
+                #and_(target_class.created_at <= start_date, target_class.created_at >= end_date),
+                #and_(target_class.created_at <= start_date, target_class.created_at >= end_date, target_class.created_at >= start_date, target_class.created_at <= end_date)
+                #)
+        #]
+        
+        
+        for key, value in kwargs.items():
+            conditions.append(getattr(target_class, key) == value)
+
+        query_result = (
+            self.__session.query(target_class)
+            .filter(and_(*conditions))
+            .order_by(order_clause)
+            .all()
+        )
+        return query_result
+    
+    def get_object_by_date_interval_and_filters(
+        self,
+        target_class: T,
+        start_date: Union[str, datetime],
+        end_date: Union[str, datetime],
+        **additional_filters
+    ) -> List[T]:
+        if isinstance(start_date, str):
+            start_date = convert_to_timestamp(start_date)
+        if isinstance(end_date, str):
+            end_date = convert_to_timestamp(end_date)
+
+        try:
+            filter_conditions = [
+                or_(
+                    and_(target_class.start_date >= start_date, target_class.start_date < end_date),
+                    and_(target_class.end_date > start_date, target_class.end_date <= end_date),
+                    and_(target_class.start_date <= start_date, target_class.end_date >= end_date),
+                    and_(target_class.start_date <= start_date, target_class.end_date >= end_date, target_class.start_date >= start_date, target_class.end_date <= end_date)
+                )
+            ]
+
+            for key, value in additional_filters.items():
+                filter_conditions.append(getattr(target_class, key) == value)
+
+            results = self.__session.query(target_class).filter(
+                *filter_conditions
+            ).order_by(asc(target_class.created_at)).all()
+
+            return results
+        except NoResultFound:
+            return []
 
 def convert_to_timestamp(date_str: str) -> Union[None, datetime]:
     try:
         return datetime.strptime(date_str, TIMESTAMP_FORMAT)
     except ValueError:
         return None
+    
+    """
+    
+    def get_object_by_date_interval_and_filter(
+        self,
+        target_class: T,
+        start_date: datetime,
+        end_date: datetime,
+        order_by: str = 'created_at',
+        **kwargs: Dict[str, Any]
+    ) -> List:
+        
+        #Get settlements objects by interval and filter.
+
+        #Parameters:
+        #- target_class (Type): The class of the target object.
+        #- start_date (datetime): The start date of the interval.
+        #- end_date (datetime): The end date of the interval.
+        #- order_by (str): The field to order the results by (default: 'created_at').
+        #- kwargs (Dict[str, Any]): Additional filters.
+
+        #Returns:
+        #- List: A list of SQLAlchemy objects.
+        
+        order_clause = getattr(target_class, order_by)
+        
+        conditions = [
+            target_class.created_at >= start_date  if start_date is not None else True,
+            target_class.created_at <= end_date
+        ]
+        
+        for key, value in kwargs.items():
+            conditions.append(getattr(target_class, key) == value)
+
+        query_result = (
+            self.__session.query(target_class)
+            .filter(and_(*conditions))
+            .order_by(order_clause)
+            .all()
+        )
+        return query_result  
+
+    """

@@ -39,10 +39,10 @@ class InvoiceData:
     def get_invoice_by_customer(self)->List[Invoice]:
         obj: ObjectManagerInterface = ObjectManagerAdapter()
         if self.include_paid == False:
-            invoices = obj.find_all_with_filter(Invoice, **{"customer_id":self.customer.id, "invoice_status":InvoiceStatus.UNPAID.value})
+            invoices = obj.find_all_with_filter(Invoice, **{"customer_id":self.customer.id, "invoice_status":InvoiceStatus.UNPAID.value, "is_deleted":False})
             return invoices
         else:
-            invoices = obj.find_all_with_filter(Invoice, **{"customer_id":self.customer.id})
+            invoices = obj.find_all_with_filter(Invoice, **{"customer_id":self.customer.id, "is_deleted":False})
             
             return invoices
     

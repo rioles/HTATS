@@ -1,5 +1,6 @@
     
 from typing import  Dict
+from models.booking import Booking
 from models.invoice import Invoice
 from models.room_occupants import RoomOccupants
 from models.room_occupation import RoomOccupation
@@ -42,18 +43,24 @@ def reformat_request_data(request_data: Dict[str, str]) -> Dict[str, Dict[str, s
     # Keys for occupant-related data
     occupant_key = {"user_id","first_name", "last_name", "occupation_id", "gender", "phone_number",
                     "date_of_birth", "email", "document_number", "type_of_document", "institute_name"}
-    
+    booking_key = {"booking_status", "booking_price", "room_id", "start_date", "end_date", "invoice_id",
+                   "user_id","created_at","updated_at","is_deleted"}
     # Extracting data for each category
     occupation_data = return_element(occupation_key, request_data)
     invoice_data = return_element(invoice_key, request_data)
     occupant_data = return_element(occupant_key, request_data)
+    booking_data = return_element(booking_key, request_data)
    
     # Organizing data within respective sub-dictionaries
     request_data_reformat["occupation_data"] = occupation_data
     request_data_reformat["invoice_data"] = invoice_data
     request_data_reformat["occupant_data"] = occupant_data
+    request_data_reformat["booking_data"] = booking_data
     
     return request_data_reformat
+
+
+
 
 
 
@@ -72,6 +79,10 @@ class ObjectManager:
     def create_occupant(self):
         occupant_data = self.request_data["occupant_data"]
         return RoomOccupants(**occupant_data)
+    
+    def create_booking(self):
+        booking_data = self.request_data["booking_data"]
+        return Booking(**booking_data)
 
 
 
@@ -182,3 +193,7 @@ def calculate_number_of_nights(checkin_datetime, checkout_datetime):
         num_nights += 1
 
     return num_nights
+
+
+
+

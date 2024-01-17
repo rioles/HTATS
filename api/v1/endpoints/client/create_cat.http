@@ -1,6 +1,6 @@
-POST https://8a1a-137-255-39-197.ngrok-free.app/api/v1/type_paiement
+POST https://ff58-41-85-176-53.ngrok-free.app/api/v1/type_client
 content-type: application/json
 
 {
-    "label": "espèce"
+    "type_custormer": "Physique"
 }

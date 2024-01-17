@@ -69,7 +69,7 @@ def get_clients():
     customer_object = customer.find_all_client_data(Customer)
     page_obj = Paginator(customer_object)
     page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
-    per_page = request.args.get('per_page', default=10, type=int)  # Get the per_page parameter from the request query string
+    per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
     result = page_obj.get_hyper(page, per_page)
     return make_response(jsonify(result), 200)
 
