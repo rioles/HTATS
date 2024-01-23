@@ -22,6 +22,7 @@ class RoomOccupationEntityData:
     room: Room
     number_of_day:int = Optional[int]
     customer: Customer = Optional[Customer]
+    booking: Booking = Optional[Booking]
     room_occupation:RoomOccupation = Optional[RoomOccupation]
     room_occupants:List[RoomOccupants] = field(default_factory=list)
 
@@ -31,6 +32,7 @@ class RoomOccupationEntityData:
         self.room_occupation = self.get_room_occupation_by_room()
         self.number_of_day = self.num_of_day()
         self.customer = self.client_provider()
+        self.booking = self.booking_object()
 
     
     def get_room_occupation_by_room(self)->RoomOccupation:
@@ -43,7 +45,7 @@ class RoomOccupationEntityData:
         obj: ObjectManagerInterface = ObjectManagerAdapter()
         ids = self.room
         booked_room = obj.find_object_by(Booking, **{"room_id":ids.id, "is_deleted":False})
-        invoice = obj.find_object_by(Invoice, **{"id":booked_room.invoice_id, "is_deleted":False})
+        invoice = obj.find_object_by(Invoice, **{"id":booked_room.invoice_id, "is_deleted":False}) if booked_room is not None else None
         customer_id = invoice.customer_id if invoice is not None else None
         customer = obj.find_object_by(Customer, **{"id":customer_id}) if customer_id is not None else None
         return customer
@@ -58,10 +60,19 @@ class RoomOccupationEntityData:
         return customer
     
     def client_provider(self):
-        if self.status == "Reserved":
+        reserved = {"Reserved", "Reserved_and_confirmed"}
+        if self.status in reserved:
             return self.get_client_by_booking()
         else:
             return self.get_client_by_room_occupation()
+        
+    def booking_object(self):
+        reserved = {"Reserved", "Reserved_and_confirmed"}
+        obj: ObjectManagerInterface = ObjectManagerAdapter()
+        ids = self.room
+        booked_room = obj.find_object_by(Booking, **{"room_id":ids.id, "is_deleted":False})
+        return booked_room if self.status in reserved else None
+        
         
         
     
@@ -83,7 +94,7 @@ class RoomOccupationEntityData:
         """
         my_dict = dict(self.__dict__)
         print(my_dict)
-        keys = {"customer", "room","room_occupation"}
+        keys = {"customer", "room","room_occupation", "booking"}
 
         for key in my_dict:
             if key is not None and  key in keys and my_dict[key] is not None:
@@ -129,5 +140,3 @@ class RoomOccupationData:
             else:
                 my_dict[key] = my_dict[key]
         return my_dict
-
-        

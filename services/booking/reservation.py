@@ -1,4 +1,5 @@
-from typing import Dict, TypeVar
+from decimal import Decimal
+from typing import Dict, List, TypeVar
 from models import storage
 from models.booking import Booking, BookingStatus
 from models.invoice import Invoice, InvoiceStatus
@@ -9,6 +10,7 @@ from models.settlement_invoice import SettlementInvoice
 from services.occupation.occupation_adapter import return_all_room_items
 from services.occupation.occupation_util import InvoiceNumberGenerator, InvoiceNumberGeneratorInterface, ObjectManager, ObjectManagerInvoice, RandomPartStrategy, reformat_request_data, reformat_request_datas
 from models.room_category import RoomCategory
+from models.customer import Customer
 T = TypeVar('T')
 class BookingService():
     def all_available_room(self, **kwargs):
@@ -75,13 +77,15 @@ class BookingService():
         
         data = reformat_request_data(object_meta_data)
         invoice:Invoice = ObjectManager(data).create_invoice()
+        print("id invoice", invoice.id)
+        object_meta_data["invoice_id"] = invoice.id
         data = reformat_request_data(object_meta_data)
         booking: Booking = ObjectManager(data).create_booking()
 
         try:
             all_object = {}
-            booking.save()
             invoice.save()
+            booking.save()
             storage.update_object(Room,room.id, **{"room_status":RoomStatus.RESERVED.value})
             all_object["invoice"] = invoice.to_dict()
             all_object["reservation"] = booking.to_dict()
@@ -109,20 +113,21 @@ class BookingService():
             Exception: If the user_object dictionary is empty.
     
     """
-        booking = storage.find_by(Booking, id = object_meta_data["booking_id"])
-        invoice = storage.find_by(Invoice, id = object_meta_data["invoice_id"])
+        booking = storage.find_by(Booking, **{"is_deleted": False, "id":object_meta_data["booking_id"], "booking_status":BookingStatus.PENDING.value, "start_date":object_meta_data["start_date"], "end_date":object_meta_data["end_date"]})
+        invoice = storage.find_by(Invoice, **{"is_deleted": False, "id":booking.invoice_id })
         room = storage.find_by(Room, id = booking.room_id)
-        price = object_meta_data["percentage"] * room.room_amount // 100
+        price = Decimal(object_meta_data["percentage"]) * room.room_amount // 100
         object_meta_data["settlement_amount"] = price
+        data = reformat_request_datas(object_meta_data)
         settlement:Settlement = ObjectManagerInvoice(data).create_settelement()
         object_meta_data["settlement_id"]= settlement.id
         data = reformat_request_datas(object_meta_data)
         settlemen_invoice:SettlementInvoice = ObjectManagerInvoice(data).create_settlement_invoice()
         
         try:
-            storage.update_object(Room,room.id, **{"room_status":RoomStatus.RESERVED_AND_CONFIRMED.value})
+            storage.update_object(Booking,booking.id, **{"booking_status":BookingStatus.CONFIRMED.value, "percentage":object_meta_data["percentage"], "booking_price":price})
             storage.update_object(Invoice,invoice.id, **{"invoice_status":InvoiceStatus.PAID.value, "invoice_amount":price})
-            storage.update_object(Booking,booking.id, **{"booking_status":BookingStatus.CONFIRMED.value, "percentage":object_meta_data["booking_id"], "booking_price":price})
+            storage.update_object(Room,room.id, **{"room_status":RoomStatus.RESERVED_AND_CONFIRMED.value})
             settlement.save()
             settlemen_invoice.save()
         except Exception as e:
@@ -135,8 +140,37 @@ class BookingService():
         bookings = storage.find_all_by(Booking, **{"is_deleted": False, "booking_status":BookingStatus.PENDING.value})
         
         for booking in bookings:
+            invoice = storage.find_by(Invoice, **{"is_deleted": False, "id":booking.invoice_id, "invoice_status":InvoiceStatus.UNPAID.value})
             room = storage.find_by(Room, **{"is_deleted": False, "id":booking.room_id, "room_status":RoomStatus.RESERVED.value})
-            room_category = storage.find_by(RoomCategory, **{"is_deleted": False, "id":room.room_category_id})
-            room_booked = {"booking":booking.to_dict(), "room":room.to_dict(), "room_category":room_category.to_dict()}
+            room_category = storage.find_by(RoomCategory, **{"is_deleted": False, "id":room.room_category_id}) if room is not None else None
+            customer = storage.find_by(Customer, **{"is_deleted": False, "id":invoice.customer_id}) if invoice is not None else None
+            room_booked = {"booking":booking.to_dict(), "room":room.to_dict(), "room_category":room_category.to_dict(), "customer":customer.to_dict()} if room is not None else {"booking":None, "room":None, "room_category":None, "customer": None}
             all_booking_room.append(room_booked)
         return all_booking_room
+    
+    
+    def canceled_booking(self, **object_meta_data: Dict[str, str]):
+        booking = storage.find_by(Booking, id = object_meta_data["booking_id"])
+        invoice = storage.find_by(Invoice, id = booking.invoice_id)
+        room = storage.find_by(Room, id = booking.room_id)
+        
+        try:
+            storage.update_object(Booking,booking.id, **{"booking_status":BookingStatus.CANCELLED.value})
+            storage.update_object(Invoice,invoice.id, **{"is_deleted":True})
+            storage.update_object(Room,room.id, **{"room_status":RoomStatus.AVAILABLE_AND_CLEAN.value})
+        except Exception as e:
+            print(e)
+            return None
+        
+    def get_all_confirm_booking(
+        self, 
+    ) -> List[Dict[str, str]]:
+        all_booking_room = []
+        bookings = storage.find_all_by(Booking, **{"is_deleted": False, "booking_status":BookingStatus.CONFIRMED.value})
+        for booking in bookings:
+            room = storage.find_by(Room, **{"is_deleted": False, "id":booking.room_id, "room_status":RoomStatus.RESERVED_AND_CONFIRMED.value})
+            room_category = storage.find_by(RoomCategory, **{"is_deleted": False, "id":room.room_category_id}) if room is not None else None
+            room_booked = {"booking":booking.to_dict(), "room":room.to_dict(), "room_category":room_category.to_dict()} if room is not None else {"booking":None, "room":None, "room_category":None}
+            all_booking_room.append(room_booked)
+        return all_booking_room
+       

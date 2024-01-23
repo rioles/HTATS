@@ -56,8 +56,13 @@ def confirmed_booking():
             {'status': '401', 'message': 'The request data is empty'}), 400)
 
     obj:BookingService = BookingService()
-    obj.confirmed_booking(**request.get_json())
-    return make_response(jsonify({"message":"update made successfully", "status":200}), 200)
+    obj = obj.confirmed_booking(**request.get_json())
+    if obj == None:
+        return make_response(jsonify({"message":"une erreur s'est produit lors du modification", "status":500}), 500)
+    else:
+        return make_response(jsonify(obj), 200)
+        
+    
 
 @app_views.route('/room_booked', methods=['GET'], strict_slashes=False)
 @cross_origin()
@@ -71,3 +76,31 @@ def get_reserved_room():
     per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
     result = page_obj.get_hyper(page, per_page)
     return make_response(jsonify(result), 200)
+
+
+@app_views.route('/canceled_booking', methods=['PUT'], strict_slashes=False)
+@cross_origin()
+@jwt_required()
+def canceled_booking():
+    """canceled booking"""
+    if not request.get_json():
+        return make_response(jsonify(
+            {'status': '401', 'message': 'The request data is empty'}), 400)
+
+    obj:BookingService = BookingService()
+    obj.canceled_booking(**request.get_json())
+    return make_response(jsonify({"message":"update made successfully", "status":200}), 200)
+
+@app_views.route('/confirmed_booking', methods=['GET'], strict_slashes=False)
+@cross_origin()
+@jwt_required()
+def all_booking_confirmed():
+    """create a new category"""
+    obj = BookingService()
+    room = obj.get_all_confirm_booking()
+    page_obj = Paginator(room)
+    page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
+    per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
+    result = page_obj.get_hyper(page, per_page)
+    return make_response(jsonify(result), 200)
+       

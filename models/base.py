@@ -56,9 +56,17 @@ class BaseModel:
             returns a dictionary of all the key values in __dict__
         """
         my_dict = dict(self.__dict__)
+        
         my_dict["__class__"] = str(type(self).__name__)
         my_dict["created_at"] = self.created_at.isoformat()
         my_dict["updated_at"] = self.updated_at.isoformat()
+        
+        if "start_date" in my_dict:
+            my_dict["start_date"] = self.start_date.isoformat()
+            
+        if "end_date" in my_dict:
+            my_dict["end_date"] = self.end_date.isoformat()
+            
         
         # Convert Decimal values to float
         my_dict = {

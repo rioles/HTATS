@@ -28,12 +28,22 @@ class Booking(BaseModel, Base):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if isinstance(self.start_date, str):
+        #self.start_date = self.start_date.strftime(TIMESTAMP_FORMAT)
+        #self.end_date = self.end_date.strftime(TIMESTAMP_FORMAT)
+        #self.convert_dates_to_string()
+        #self.end_date = datetime.strptime(self.end_date, TIMESTAMP_FORMAT)
+        
+    def convert_dates_to_string(self):
+        if self.start_date and isinstance(self.start_date, datetime):
+            self.start_date = self.start_date.strftime(TIMESTAMP_FORMAT)
+            #self.start_date = datetime.strptime(self.start_date, TIMESTAMP_FORMAT)
+        if self.end_date and isinstance(self.end_date, datetime):
+            self.end_date = self.end_date.strftime(TIMESTAMP_FORMAT)
+            #self.end_date = datetime.strptime(self.end_date, TIMESTAMP_FORMAT)
+            
+    def convert_strings_to_dates(self):
+        if self.start_date and isinstance(self.start_date, str):
             self.start_date = datetime.strptime(self.start_date, TIMESTAMP_FORMAT)
-        if isinstance(self.end_date, str):
+        if self.end_date and isinstance(self.end_date, str):
             self.end_date = datetime.strptime(self.end_date, TIMESTAMP_FORMAT)
-        self.start_date = datetime.strptime(self.start_date, TIMESTAMP_FORMAT)
-        self.end_date = datetime.strptime(self.end_date, TIMESTAMP_FORMAT)
-        
-        
     
