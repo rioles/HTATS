@@ -13,11 +13,11 @@ class AddRoom(RoomPort):
         try:
             room: Room = Room(**object_meta_data)
             room_entity: RoomEntity = RoomEntity(room.id, room)
-            print(room_entity)
+            #print(room_entity)
             rooms: Room = room_entity.map_room_entity_to_room_orm()
-            print(rooms)
+            #print(rooms)
             rooms.save()
-            print("this is room",room_entity.to_dict())
+            #print("this is room",room_entity.to_dict())
         except Exception as e:
             print(e)
             return None

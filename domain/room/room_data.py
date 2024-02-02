@@ -83,25 +83,5 @@ def get_room_by_room_item(room_item: RoomItem):
     room = obj.find_object_by(Room, **{"id":room_item.room_id})
     return room
 
-object_meta_data = {"room_label": "un label", "room_amount": 150.0, "room_category_id": "77f2db6d-9a2e-4229-bf1a-1c00c6940683", "room_status":"Occupied"}   
-objs: Room = Room(
-    **object_meta_data
-)
-print(objs)
-objectss = {"room_item_label": "un label", "item_type": "un type", "item_description":"une dec"}
-objjj: RoomItem = RoomItem(**objectss)
-print(objjj.to_dict())
-print(get_room_by_room_item(objjj))
 
-if get_room_by_room_item(objjj) is None:
-    a:RoomData = RoomData(objjj.id, objjj, objs)
-    print("room was none",a.map_room_item_entity_to_room_item_orm())
-    print(a.to_dict())
-else:
-    a:RoomData = RoomData(objjj.id, objjj)
-    print(a.to_dict())
-    #print(a.get_room_entity())
-    #print(a.room_itme_status)
-    #print(a.map_room_item_entity_to_room_item_orm())
-    #print(a.to_dict())
 

@@ -36,16 +36,11 @@ class RoomItemAdapter(RoomItemPort):
         room_item: RoomItem = ObjectManager(object_meta_datas).create_room_item()
         room_data = self.reformat_request_data(object_meta_data)["room_data"]
         room:Room = ObjectManager(object_meta_datas).create_room()
-        room_from_db:Room = get_room_by_room_label(room)
-        print(room)
+        
         try:
-            
-            if room_from_db is not None:
-                room_data = return_room_data(room_item, object_meta_datas, room_from_db)
-                room_items = room_data.map_room_item_entity_to_room_item_orm()
-                room_items.save()
-                return room_data.to_dict()
-            else:
+            room_from_db:Room = get_room_by_room_label(room)
+            print("roo_mfrdeb", room_from_db)
+            if room_from_db is None:
                 rom_i: RoomPort = AddRoom()
                 room_data = self.reformat_request_data(object_meta_data)["room_data"]
                 room_db = rom_i.add_object(Room, **room_data)
@@ -56,6 +51,12 @@ class RoomItemAdapter(RoomItemPort):
                 room_item = room_data.map_room_item_entity_to_room_item_orm()
                 room_item.save()
                 return room_data.to_dict()
+            elif room_from_db is not None:
+                room_data = return_room_data(room_item, object_meta_datas, room_from_db)
+                room_items = room_data.map_room_item_entity_to_room_item_orm()
+                room_items.save()
+                return room_data.to_dict()
+                
         except Exception as e:
             print(e)
             return None
@@ -154,7 +155,7 @@ def return_element(element_set: Set[str], request_data:Dict[str, str])-> Dict[st
 def get_room_by_room_label(room: Room):
     obj: ObjectManagerInterface = ObjectManagerAdapter()
     room = obj.find_object_by(Room, **{"room_label":room.room_label})
-    return room
+    return room if room is not None else None
 
 class ObjectManager:
     def __init__(self, request_data: Dict):

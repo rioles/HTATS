@@ -9,8 +9,8 @@ if [ -d "dist" ]; then
     rm -r dist/
 fi
 
-if [ -d "vid_stream.egg-info" ]; then
-    rm -r vid_stream.egg-info/
+if [ -d "h_tats.egg-info" ]; then
+    rm -r h_tats.egg-info/
 fi
 
 # Determine the site-packages directory dynamically for Python 3
@@ -24,7 +24,7 @@ cd "$PYTHON3_SITE_PACKAGES" || {
 
 # Check if any of the vid_stream egg files exist before attempting to remove them for Python 3
 # Remove all vid_stream egg files for Python 3
-for file in vid_stream-0.0.1-*.egg; do
+for file in h_tats.egg-info-*.egg; do
     if [ -e "$file" ]; then
         rm -r "$file"
     fi
@@ -41,7 +41,7 @@ cd "$PYTHON2_SITE_PACKAGES" || {
 
 # Check if any of the vid_stream egg files exist before attempting to remove them for Python 2
 # Remove all vid_stream egg files for Python 2
-for file in vid_stream-0.0.1-*.egg; do
+for file in h_tats.egg-info-*.egg; do
     if [ -e "$file" ]; then
         rm -r "$file"
     fi

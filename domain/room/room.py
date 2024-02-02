@@ -98,6 +98,7 @@ objs: Room = Room(
     **object_meta_data
 )
 """
+"""
 object_meta_data = {"room_label": "terdfrrdsg", "room_amount": "150.0", "room_category_id": "4a600ab2-f15e-4e4f-90de-286199fc7e39"}   
 objs: Room = Room(
     **object_meta_data
@@ -108,6 +109,7 @@ def get_room_by_room_label(room: Room):
     room = obj.find_object_by(Room, **{"room_label":room.room_label})
     return room
 print(objs)
+"""
 #print(RoomEntity(objs.id, objs))
 #a = RoomEntity(objs.id, objs)
 #print(a)

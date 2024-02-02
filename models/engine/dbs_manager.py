@@ -394,6 +394,9 @@ class DBSManager(HotelReservationCrudPort):
             target_class.created_at <= end_date
         ]
         
+        if target_class == Invoice:
+            conditions.append(target_class.invoice_amount > 0)
+        
         #conditions = [
             #or_(
                 #and_(target_class.created_at >= start_date, target_class.created_at < end_date),
@@ -447,6 +450,32 @@ class DBSManager(HotelReservationCrudPort):
             return results
         except NoResultFound:
             return []
+        
+        
+    
+    def get_objects_with_positive_attribute(
+        self,
+        target_class: T,
+        attribute: Any,
+        **filter
+    ) -> List:
+        """
+        Get objects with a specified attribute greater than 0.
+
+        Parameters:
+        - target_class (Type): The class of the target object.
+        - attribute (Any): The attribute to filter on.
+
+        Returns:
+        - List: A list of SQLAlchemy objects.
+        """
+        query_result = (
+            self.__session.query(target_class)
+            .filter(getattr(target_class, attribute) > 0)
+            .filter_by(**filter)
+            .all()
+        )
+        return query_result
 
 def convert_to_timestamp(date_str: str) -> Union[None, datetime]:
     try:

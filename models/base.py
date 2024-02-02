@@ -67,6 +67,11 @@ class BaseModel:
         if "end_date" in my_dict:
             my_dict["end_date"] = self.end_date.isoformat()
             
+        if "date_of_birth" in my_dict and my_dict["date_of_birth"] is not None:
+            my_dict["date_of_birth"] = self.date_of_birth.isoformat()
+        
+        if "date_of_birth" in my_dict and my_dict["date_of_birth"] is None:
+            my_dict["date_of_birth"] = datetime.utcnow()    
         
         # Convert Decimal values to float
         my_dict = {

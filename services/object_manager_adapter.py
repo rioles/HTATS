@@ -150,6 +150,31 @@ class ObjectManagerAdapter(ObjectManagerInterface):
         return all_object
     
     
+    def convert_object_positve_to_dict_with_filter(self, current_class: T,**filter: Dict[str, str]) -> Dict[str, T]:
+
+        """
+        Converts all objects of a class to a dictionary.
+        This function converts all objects of a class to a dictionary. The
+        `current_class` argument specifies the class of the objects to convert.
+        The function returns a dictionary of objects, where the key is the
+        object's class name and the value is the object itself.
+
+        Args:
+            current_class: The class of the objects to convert.
+
+        Returns:
+            A dictionary of objects.
+        """
+
+        all_object = {}
+        objs = self.get_all_positive_by(current_class, **filter)
+        if len(objs):
+            for obj in objs:
+                key = obj.__class__.__name__ + '.' + obj.id
+                all_object[key] = obj
+
+        return all_object
+    
 
     def find_all(self, current_class: T) -> List[Dict[str, Any]]:
 
@@ -194,6 +219,28 @@ class ObjectManagerAdapter(ObjectManagerInterface):
             all_object.append(obj.to_dict())
         return all_object
     
+    def find_all_posi_with_filter(self, current_class: T, **filter: Dict[str,Any]) -> List[Dict[str, Any]]:
+
+        """
+        Gets all objects of a class from the database.
+        This function gets all objects of a class from the database. The
+       `current_class` argument specifies the class of the objects to find.
+        The function returns a list of objects, where each object is
+        a dictionary of the object's properties.
+        Args:
+            current_class: The class of the objects to find.
+
+        Returns:
+            A list of objects.
+        """
+
+        obj_dict = self.convert_object_positve_to_dict_with_filter(current_class, **filter)
+        all_object = []
+        for obj in obj_dict.values():
+            all_object.append(obj.to_dict())
+        return all_object
+  
+  #get_objects_with_positive_attribute  
     
     def get_all_by(self,
                 current_class: T,
@@ -215,6 +262,26 @@ class ObjectManagerAdapter(ObjectManagerInterface):
         """
         return storage.find_all_by(current_class,**filter)
     
+    
+    def get_all_positive_by(self,
+                current_class: T,
+                **filter: Dict[str, str]
+                ) -> List[Dict[str, Any]]:
+
+        """
+        Gets all objects of a class from the database.
+        This function gets all objects by provided filter
+        a class from the database. The
+       `current_class` argument specifies the class of the objects to find.
+        The function returns a list of objects, where each object is
+        a dictionary of the object's properties.
+        Args:
+            current_class: The class of the objects to find.
+
+        Returns:
+            A list of objects.
+        """
+        return storage.get_objects_with_positive_attribute(current_class,"invoice_amount",**filter)
     
     
     def delete_object(

@@ -49,6 +49,33 @@ class CustomerAdapter(CustormPort):
     def find_all_client_data(
         self,
         customer_object: T,
+        **kwargs: Dict[str, Any]
+        ) -> List[Dict[str, Any]]:
+        """
+        Retrieve all client data for a specific customer object.
+
+        Args:
+            customer_object (Type): The specific customer object for which to retrieve data.
+
+        Returns:
+            List[Dict[str, Any]]: A list of dictionaries containing client data for the specified customer.
+
+        Raises:
+            Any specific exceptions raised during the data retrieval process.
+        """
+        all_customer: List[Customer] = storage.find_all_by(customer_object,**kwargs)
+        all_element:List[Dict[str, Any]] = []
+        
+        
+        for element in all_customer:
+            client_data:ClientData = ClientData(element.id, element)
+            all_element.append(client_data.to_dict())
+        return all_element
+    
+    def find_all_clients_data(
+        self,
+        customer_object: T,
+        **kwargs: Dict[str, Any]
         ) -> List[Dict[str, Any]]:
         """
         Retrieve all client data for a specific customer object.
@@ -70,7 +97,6 @@ class CustomerAdapter(CustormPort):
             client_data:ClientData = ClientData(element.id, element)
             all_element.append(client_data.to_dict())
         return all_element
-    
     
     def find_object_by(
         self,

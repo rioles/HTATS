@@ -39,34 +39,36 @@ class OccupationAdapter(OccupationPort):
     
     """
         room = storage.find_by(Room, id = object_meta_data["room_id"])
-        booking = storage.find_by(Booking, **{"room_id":object_meta_data["room_id"], "booking_status":BookingStatus.CONFIRMED.value, "is_deleted":False})
+        booking = storage.find_by(Booking, **{"id":object_meta_data["booking_id"]}) if "booking_id" in object_meta_data else None
         random_strategy = RandomPartStrategy()
         invoice_generator = InvoiceNumberGenerator(random_strategy)
         number_of_day = calculate_number_of_nights(object_meta_data["start_date"], object_meta_data["end_date"])
         invoice_number = invoice_generator.generate_invoice_number()
         object_meta_data["invoice_number"] = invoice_number
-        object_meta_data["invoice_amount"] = room.room_amount * number_of_day if booking is None else (room.room_amount * number_of_day) - reservation.booking_price
+        object_meta_data["invoice_amount"] = room.room_amount * number_of_day if booking is None else (room.room_amount * number_of_day) - booking.booking_price
         
         object_meta_data["invoice_status"] = InvoiceStatus.UNPAID.value
         
         data = reformat_request_data(object_meta_data)
         invoice:Invoice = ObjectManager(data).create_invoice()
-        print(invoice)
+        print("iiii", invoice)
+        print("booookinnng", booking)
         object_meta_data["invoice_id"] = invoice.id
         data = reformat_request_data(object_meta_data)
         room_occupation: RoomOccupation = ObjectManager(data).create_occupation()
         object_meta_data["occupation_id"] = room_occupation.id
         data = reformat_request_data(object_meta_data)
-        print("ocupattttt", room_occupation)
         try:
             all_object = {}
-            storage.update_object(Room,room.id, **{"room_status":RoomStatus.OCCUPIED.value})
-            invoice.save()
-            room_occupation.save()
+            
             if booking is not None:
                 storage.update_object(Booking,booking.id, **{"booking_status":BookingStatus.COMPLETE.value})
+            invoice.save()
+            room_occupation.save()
+            storage.update_object(Room,room.id, **{"room_status":RoomStatus.OCCUPIED.value})
             all_object["invoice"] = invoice.to_dict()
             all_object["room_occupation"] = room_occupation.to_dict()
+            all_object["booking"] = booking.to_dict() if booking is None else None
             return all_object
         except Exception as e:
             print(e)
@@ -311,6 +313,16 @@ class OccupationAdapter(OccupationPort):
 
 #RoomOccupationEntityData
 def return_all_room_items(rooms:List[Room]):
+    if rooms is not None:
+        all_element:List[Dict[str, Any]] = []
+        for element in rooms:
+            room_data:RoomDataAgregate = RoomDataAgregate(element)
+            all_element.append(room_data.to_dict())
+        return all_element
+    else:
+        return []
+    
+def return_all_room_items_and_booking(rooms:List[Room]):
     if rooms is not None:
         all_element:List[Dict[str, Any]] = []
         for element in rooms:

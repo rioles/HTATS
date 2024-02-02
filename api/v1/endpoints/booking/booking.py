@@ -57,10 +57,12 @@ def confirmed_booking():
 
     obj:BookingService = BookingService()
     obj = obj.confirmed_booking(**request.get_json())
-    if obj == None:
-        return make_response(jsonify({"message":"une erreur s'est produit lors du modification", "status":500}), 500)
-    else:
+    print("check if is ok", obj)
+    if obj is not None:
         return make_response(jsonify(obj), 200)
+    else:
+        return make_response(jsonify({"message":"une erreur s'est produit lors du modification", "status":404}), 404)
+        
         
     
 
@@ -104,3 +106,21 @@ def all_booking_confirmed():
     result = page_obj.get_hyper(page, per_page)
     return make_response(jsonify(result), 200)
        
+
+@app_views.route('/booking_by_room', methods=['POST'], strict_slashes=False)
+@cross_origin()
+@jwt_required()
+def booking_by_room():
+    """create a new category"""
+    if not request.get_json():
+        return make_response(jsonify(
+            {'status': '401', 'message': 'The request data is empty'}), 400)
+    obj = BookingService()
+    booking = obj.get_booking_by_room_and_date(**request.get_json())
+    print(booking)
+    #page_obj = Paginator(room)
+    #page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
+    #per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
+    #result = page_obj.get_hyper(page, per_page)
+    return make_response(jsonify(booking), 200)
+

@@ -15,7 +15,8 @@ app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 app.config['FLASK_JWT_SECRET_KEY'] = secrets.token_hex(12)
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=12)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=5)
+
  
 #FLASK_JWT_SECRET_KEY= secrets.token_hex(12)
 jwt = JWTManager(app)
@@ -47,14 +48,17 @@ def invalid_token_callback(error_string):
     return jsonify({"msg": "Invalid token", "status": 401}), 401
 
 @jwt.unauthorized_loader
+@cross_origin()
 def unauthorized_callback(callback_error):
-    return jsonify({"msg": "Unauthorized access", "status": 401}), 401
+    return jsonify({"msg": "acès non autorisé", "status": 401}), 401
 
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_data):
     jti = jwt_data["jti"]
     jwti = storage.find_by(TokenBlockList, **{"jti": jti})
     return jwti is not None
+
+
 
 @app.teardown_appcontext
 def teardown(self):
@@ -70,7 +74,7 @@ def pageNotFound(error):
 
 if __name__ == "__main__":
     host = "0.0.0.0"
-    port = 3001
+    port = 5000
     #host = getenv('AUT_API_HOST', default='0.0.0.0')
     #port = getenv('AUT_API_PORT', default=3000)
     app.run(host=host, port=port, threaded=True)

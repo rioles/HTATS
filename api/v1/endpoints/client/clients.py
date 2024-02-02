@@ -60,13 +60,29 @@ def get_client_by_phone(phone_number):
         return make_response(jsonify(customer_object), 200)
 
 
-@app_views.route('/clients', methods=['GET'], strict_slashes=False)
+@app_views.route('/clients_physique', methods=['GET'], strict_slashes=False)
 @cross_origin()
 @jwt_required()
-def get_clients():
+def get_physiq_clients():
     """create a new client"""
     customer: CustormPort = CustomerAdapter()
-    customer_object = customer.find_all_client_data(Customer)
+    kwarg = {"is_deleted": False, "customer_type_id":"c144bd80-fddd-4372-9836-833fa8f9d0c6"}
+    customer_object = customer.find_all_client_data(Customer, **kwarg)
+    page_obj = Paginator(customer_object)
+    page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
+    per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
+    result = page_obj.get_hyper(page, per_page)
+    return make_response(jsonify(result), 200)
+
+
+@app_views.route('/clients_morale', methods=['GET'], strict_slashes=False)
+@cross_origin()
+@jwt_required()
+def get_clients_morale():
+    """create a new client"""
+    customer: CustormPort = CustomerAdapter()
+    kwarg = {"is_deleted": False, "customer_type_id":"f3604013-67cf-45ab-b2e7-ed39c1c59fec"}
+    customer_object = customer.find_all_client_data(Customer, **kwarg)
     page_obj = Paginator(customer_object)
     page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
     per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
@@ -75,16 +91,31 @@ def get_clients():
 
 
 
+@app_views.route('/clients', methods=['GET'], strict_slashes=False)
+@cross_origin()
+@jwt_required()
+def get_clients():
+    """create a new client"""
+    customer: CustormPort = CustomerAdapter()
+    customer_object = customer.find_all_clients_data(Customer)
+    page_obj = Paginator(customer_object)
+    page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
+    per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
+    result = page_obj.get_hyper(page, per_page)
+    return make_response(jsonify(result), 200)
 
 
-@app_views.route('/type_client', methods=['POST'], strict_slashes=False)
-def post_type_client():
-    """create a new category"""
+@app_views.route('/customer', methods=['PUT'], strict_slashes=False)
+@cross_origin()
+@jwt_required()
+def update_client():
+    """create a new client"""
     if not request.get_json():
         return make_response(jsonify(
             {'status': '401', 'message': 'The request data is empty'}), 400)
     
     obj:ObjectManagerInterface = ObjectManagerAdapter()  
-    type_client = obj.add_object(
-        CustormerType, **request.get_json())
-    return make_response(jsonify(type_client.to_dict()), 201)
+    obj.update_object_in_storage(
+        Customer, request.get_json()["id"], **request.get_json())
+    return make_response(jsonify({"message":"update made successfully", "status":200}), 200)
+

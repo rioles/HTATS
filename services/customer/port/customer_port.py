@@ -62,6 +62,7 @@ class CustormPort(ABC):
     def find_all_client_data(
         self,
         customer_object: T,
+        **kwargs: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """
         Retrieve all client data for a specific customer object.

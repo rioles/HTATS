@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import Dict, List, Optional
 from domain.client.email_value_object import EmailAddress
 from domain.client.phone_value_object import PhoneNumber
-from models.booking import Booking
+from models.booking import Booking, BookingStatus
 from models.customer_type import CustormerType
 from domain.client.date_value_object import DateValue
 from models.room_occupants import RoomOccupants
@@ -70,7 +70,7 @@ class RoomOccupationEntityData:
         reserved = {"Reserved", "Reserved_and_confirmed"}
         obj: ObjectManagerInterface = ObjectManagerAdapter()
         ids = self.room
-        booked_room = obj.find_object_by(Booking, **{"room_id":ids.id, "is_deleted":False})
+        booked_room = obj.find_object_by(Booking, **{"room_id":ids.id, "is_deleted":False, "booking_status":BookingStatus.CONFIRMED.value})
         return booked_room if self.status in reserved else None
         
         
