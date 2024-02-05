@@ -68,7 +68,8 @@ class BaseModel:
             my_dict["end_date"] = self.end_date.isoformat()
             
         if "date_of_birth" in my_dict and my_dict["date_of_birth"] is not None:
-            my_dict["date_of_birth"] = self.date_of_birth.isoformat()
+            if isinstance(self.date_of_birth, datetime):
+                my_dict["date_of_birth"] = self.date_of_birth.isoformat()
         
         if "date_of_birth" in my_dict and my_dict["date_of_birth"] is None:
             my_dict["date_of_birth"] = datetime.utcnow()    
