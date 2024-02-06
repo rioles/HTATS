@@ -7,8 +7,8 @@ from flask_jwt_extended import  jwt_required
 from services.paginator import Paginator
 
 @app_views.route('/earn/<string:user_id>', methods=['GET'], strict_slashes=False)
+@jwt_required()
 @cross_origin()
-#@jwt_required()
 def get_settlement_amount(user_id):
     data = {"user_id":user_id}
     obj:SettlementPort = SettlementAdapter()
@@ -17,8 +17,8 @@ def get_settlement_amount(user_id):
     return make_response(jsonify(summ), 200)
 
 @app_views.route('/sttlement_by_user', methods=['POST'], strict_slashes=False)
+@jwt_required()
 @cross_origin()
-#@jwt_required()
 def get_list_settlement():
     """get list of settlement"""
     if not request.get_json():
@@ -31,6 +31,7 @@ def get_list_settlement():
     return make_response(jsonify(settlement_obj), 200)
 
 @app_views.route('/unpaid_invoice_customer', methods=['POST'], strict_slashes=False)
+@jwt_required()
 @cross_origin()
 #@jwt_required()
 def get_unpaid_list_invoice():
@@ -46,8 +47,8 @@ def get_unpaid_list_invoice():
 
 
 @app_views.route('/sttlements', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def get_all_settlement():
     """get list of settlement"""
     if not request.get_json():
@@ -65,6 +66,7 @@ def get_all_settlement():
 
 
 @app_views.route('/invoice_customer', methods=['POST'], strict_slashes=False)
+@jwt_required()
 @cross_origin()
 #@jwt_required()
 def get_list_invoice():

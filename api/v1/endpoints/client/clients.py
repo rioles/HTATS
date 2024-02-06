@@ -16,8 +16,8 @@ from flask_jwt_extended import  jwt_required
 from services.object_manager_interface import ObjectManagerInterface
 from services.room_service.room_category_manager.adapter.room_category_adapter import CreateCategoryRoom
 @app_views.route('/client', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def post_client():
     """create a new category"""
     if not request.get_json():
@@ -31,8 +31,8 @@ def post_client():
 
 
 @app_views.route('/client/<string:client_id>', methods=['GET'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def get_client(client_id):
     """create a new client"""
     print(client_id)
@@ -45,8 +45,8 @@ def get_client(client_id):
     return make_response(jsonify(customer_object), 200)
 
 @app_views.route('/client_by_phone/<string:phone_number>', methods=['GET'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def get_client_by_phone(phone_number):
     """create a new client"""
     print(phone_number)
@@ -61,8 +61,8 @@ def get_client_by_phone(phone_number):
 
 
 @app_views.route('/clients_physique', methods=['GET'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def get_physiq_clients():
     """create a new client"""
     customer: CustormPort = CustomerAdapter()
@@ -76,8 +76,8 @@ def get_physiq_clients():
 
 
 @app_views.route('/clients_morale', methods=['GET'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def get_clients_morale():
     """create a new client"""
     customer: CustormPort = CustomerAdapter()
@@ -92,8 +92,8 @@ def get_clients_morale():
 
 
 @app_views.route('/clients', methods=['GET'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def get_clients():
     """create a new client"""
     customer: CustormPort = CustomerAdapter()
@@ -106,8 +106,8 @@ def get_clients():
 
 
 @app_views.route('/customer', methods=['PUT'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def update_client():
     """create a new client"""
     if not request.get_json():

@@ -2,6 +2,8 @@ from datetime import timedelta, datetime
 from flask import Flask, make_response, jsonify, redirect, request
 from flask_cors import CORS, cross_origin
 from flask_jwt_extended import JWTManager
+from flask_jwt_extended.exceptions import NoAuthorizationError, JWTDecodeError
+from jwt.exceptions import ExpiredSignatureError
 from models import storage
 from models.token_block_list import TokenBlockList
 from models.user import User
@@ -15,7 +17,9 @@ app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 app.config['FLASK_JWT_SECRET_KEY'] = secrets.token_hex(12)
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=5)
+#app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=5)
+
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)  # Expires in 24 hour
 
  
 #FLASK_JWT_SECRET_KEY= secrets.token_hex(12)
@@ -47,10 +51,26 @@ def expired_token_callback(jwt_header, jwt_payload):
 def invalid_token_callback(error_string):
     return jsonify({"msg": "Invalid token", "status": 401}), 401
 
+#@jwt.unauthorized_loader
+#@cross_origin()
+#def unauthorized_callback(callback_error):
+    #return jsonify({"msg": "acès non autorisé", "status": 401}), 401
+
 @jwt.unauthorized_loader
 @cross_origin()
 def unauthorized_callback(callback_error):
-    return jsonify({"msg": "acès non autorisé", "status": 401}), 401
+    error_message = "Accès non autorisé"
+    status_code = 401
+
+    # Check the type of error
+    if isinstance(callback_error, ExpiredSignatureError):
+        error_message = "Le jeton a expiré, veuillez vous reconnecter."
+        status_code = 401  # or any other appropriate status code
+    elif isinstance(callback_error, (NoAuthorizationError, JWTDecodeError)):
+        error_message = "Le jeton est invalide ou manquant."
+        status_code = 401  # or any other appropriate status code
+
+    return jsonify({"msg": error_message, "status": status_code}), status_code
 
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_data):

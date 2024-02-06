@@ -165,7 +165,8 @@ class BookingService():
         
         try:
             storage.update_object(Booking,booking.id, **{"booking_status":BookingStatus.CANCELLED.value})
-            storage.update_object(Invoice,invoice.id, **{"is_deleted":True})
+            if invoice.invoice_amount > 0:
+                storage.update_object(Invoice,invoice.id, **{"is_deleted":True})
             storage.update_object(Room,room.id, **{"room_status":RoomStatus.AVAILABLE_AND_CLEAN.value})
         except Exception as e:
             print(e)

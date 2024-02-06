@@ -9,8 +9,8 @@ from services.room_service.room.port.room_item_port import RoomItemPort
 from flask_jwt_extended import  jwt_required
 
 @app_views.route('/room_item', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def post_room_item():
     """create a new category"""
     if not request.get_json():
@@ -25,6 +25,7 @@ def post_room_item():
 
 
 @app_views.route('/rooms', methods=['GET'], strict_slashes=False)
+@jwt_required()
 @cross_origin()
 def get_rooms():
     """create a new client"""

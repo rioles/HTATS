@@ -17,8 +17,8 @@ from flask_jwt_extended import  jwt_required
 from services.room_service.room_category_manager.adapter.room_category_adapter import CreateCategoryRoom
 
 @app_views.route('/booking', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def get_room_to_reserved():
     """create a new category"""
     if not request.get_json():
@@ -34,8 +34,8 @@ def get_room_to_reserved():
     return make_response(jsonify(result), 200)
 
 @app_views.route('/reserved', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def add_booking():
     """get list of invoice"""
     if not request.get_json():
@@ -47,8 +47,8 @@ def add_booking():
     return make_response(jsonify(booking_object), 200)
 
 @app_views.route('/confirmed', methods=['PUT'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def confirmed_booking():
     """get list of invoice"""
     if not request.get_json():
@@ -67,8 +67,8 @@ def confirmed_booking():
     
 
 @app_views.route('/room_booked', methods=['GET'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def get_reserved_room():
     """create a new category"""
     obj = BookingService()
@@ -81,8 +81,8 @@ def get_reserved_room():
 
 
 @app_views.route('/canceled_booking', methods=['PUT'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def canceled_booking():
     """canceled booking"""
     if not request.get_json():
@@ -94,8 +94,8 @@ def canceled_booking():
     return make_response(jsonify({"message":"update made successfully", "status":200}), 200)
 
 @app_views.route('/confirmed_booking', methods=['GET'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def all_booking_confirmed():
     """create a new category"""
     obj = BookingService()
@@ -108,8 +108,8 @@ def all_booking_confirmed():
        
 
 @app_views.route('/booking_by_room', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @jwt_required()
+@cross_origin()
 def booking_by_room():
     """create a new category"""
     if not request.get_json():

@@ -12,12 +12,12 @@ from models.login_history import LoginHistory
 from datetime import datetime
 from flask_jwt_extended import create_access_token, jwt_required, create_refresh_token, get_jwt_identity,get_jwt,decode_token
 
-import logging
+#import logging
 from services.object_manager_interface import ObjectManagerInterface
 from services.room_service.room_category_manager.adapter.room_category_adapter import CreateCategoryRoom
 from services.user.user_adapter import UserAdapter
 from services.user.user_port import UserManagerInterface
-logging.basicConfig(filename='/tmp/userlogin.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+#logging.basicConfig(filename='/tmp/userlogin.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 @app_views.route('/user', methods=['POST'], strict_slashes=False)
 @cross_origin()
 def post_user():
@@ -27,7 +27,7 @@ def post_user():
             {'status': '401', 'message': 'The request data is empty'}), 400)
     obj:ObjectManagerInterface = ObjectManagerAdapter()
     user = obj.find_object_by(User, **{"email":request.get_json()["email"]})
-    logging.debug("user.. %s", user)
+    #logging.debug("user.. %s", user)
     if user is not None:
         return make_response(jsonify(
             {'status': '409', 'message': f'user with email {user.email} already exists'}), 409)

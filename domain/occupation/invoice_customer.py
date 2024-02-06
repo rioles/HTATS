@@ -1,11 +1,8 @@
 from dataclasses import dataclass, field
-from datetime import datetime
 from decimal import Decimal
 from typing import Dict, List, Optional
-from domain.client.email_value_object import EmailAddress
-from domain.client.phone_value_object import PhoneNumber
+from models.booking import Booking
 from models.customer_type import CustormerType
-from domain.client.date_value_object import DateValue
 from services.object_manager_adapter import ObjectManagerAdapter
 from services.object_manager_interface import ObjectManagerInterface
 from models.customer import Customer
@@ -74,12 +71,14 @@ class RoomOccupationData:
     number_of_day:int = Optional[int]
     room: Room = Optional[Room]
     room_occupation:RoomOccupation = Optional[RoomOccupation]
+    booking:Booking = Optional[Booking]
 
     
     def __post_init__(self):
         self.room = self.get_room_by_room_occupation()
         self.room_occupation = self.get_room_occupation_by_invoice()
         self.number_of_day = self.num_of_day()
+        self.booking = self.get_booking_by_invoice()
 
     
     def get_room_occupation_by_invoice(self)->RoomOccupation:
@@ -88,16 +87,28 @@ class RoomOccupationData:
         room_occupation = obj.find_object_by(RoomOccupation, **{"invoice_id":ids.id})
         return room_occupation
     
+    def get_booking_by_invoice(self):
+        obj: ObjectManagerInterface = ObjectManagerAdapter()
+        ids = self.invoice
+        booking = obj.find_object_by(Booking, **{"invoice_id":ids.id})
+        return booking
+        
     
     def get_room_by_room_occupation(self)->List[Invoice]:
         obj: ObjectManagerInterface = ObjectManagerAdapter()
         occupation = self.get_room_occupation_by_invoice()
-        room = obj.find_object_by(Room, **{"id":occupation.room_id})         
-        return room
+        booking = self.get_booking_by_invoice()
+        
+        if occupation is not None:
+            return obj.find_object_by(Room, **{"id":occupation.room_id})
+        else:
+            return obj.find_object_by(Room, **{"id":booking.room_id})      
     
     def num_of_day(self):
         occupation = self.get_room_occupation_by_invoice()
-        return calculate_number_of_nights(occupation.start_date, occupation.end_date)
+        if occupation is not None:
+            return calculate_number_of_nights(occupation.start_date, occupation.end_date)
+        return 0
     
     def to_dict(self):
         """creates dictionary of the class  and returns
@@ -106,11 +117,12 @@ class RoomOccupationData:
         """
         my_dict = dict(self.__dict__)
         print(my_dict)
-        keys = {"invoice", "room","room_occupation"}
+        keys = {"invoice", "room","room_occupation","booking"}
 
         for key in my_dict:
-            if key in keys and key is not None:
-                my_dict[key] = my_dict[key].to_dict()
+            if key in keys:
+                if my_dict[key] is not None:
+                    my_dict[key] = my_dict[key].to_dict()
             else:
                 my_dict[key] = my_dict[key]
         return my_dict
