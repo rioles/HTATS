@@ -126,6 +126,7 @@ class OccupationAdapter(OccupationPort):
         Returns:
             The  object, if found.
         """
+                            
         all_room_occupied = storage.get_room_with_date_interval(object_class, start_date, end_date)
         all_rooms = storage.find_all_by(Room, **{"is_deleted": False})
         occupied_room_ids = [room.room_id for room in all_room_occupied]
@@ -133,7 +134,7 @@ class OccupationAdapter(OccupationPort):
         
         available_rooms_ids = list(set(all_room_ids) - set(occupied_room_ids))
         available_rooms = [storage.find_by(Room, id=room_id) for room_id in available_rooms_ids]
-        
+        print("avill", "available_rooms")
         all_room_data = return_all_room_items(available_rooms)
         return all_room_data
     
@@ -307,6 +308,8 @@ class OccupationAdapter(OccupationPort):
         room_occupied1 = return_all_room_occupied(room_occupations1)
         room_occupied = room_occupied.extends(room_occupied1)
         return room_occupied
+    
+    
     
     
     

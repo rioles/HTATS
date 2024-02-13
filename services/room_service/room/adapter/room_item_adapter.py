@@ -137,6 +137,23 @@ class RoomItemAdapter(RoomItemPort):
             all_element.append(room_data.to_dict())
         return all_element
     
+    def delete_room(
+        self, 
+        **object_meta_data: Dict[str, str]
+    ) -> Room:
+        
+        room = storage.find_by(Room, **{"id":object_meta_data["id"]})
+        room_items = storage.find_all_by(RoomItem, **{"room_id":object_meta_data["id"]})
+        
+        storage.update_object(Room, room.id, **{"is_delete": True})
+        
+        for room_item in room_items:
+            storage.update_object(RoomItem, room_item.id, **{"is_delete": True})
+        
+        return room.to_dict()
+            
+    
+    
 
 
         

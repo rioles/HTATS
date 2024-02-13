@@ -8,7 +8,7 @@ from models.room_occupation import RoomOccupation
 from models.settlement import Settlement
 from models.settlement_invoice import SettlementInvoice
 from services.occupation.occupation_adapter import return_all_room_items
-from services.occupation.occupation_util import InvoiceNumberGenerator, InvoiceNumberGeneratorInterface, ObjectManager, ObjectManagerInvoice, RandomPartStrategy, reformat_request_data, reformat_request_datas
+from services.occupation.occupation_util import InvoiceNumberGenerator, InvoiceNumberGeneratorInterface, ObjectManager, ObjectManagerInvoice, RandomPartStrategy, calculate_number_of_nights, reformat_request_data, reformat_request_datas
 from models.room_category import RoomCategory
 from models.customer import Customer
 import logging
@@ -22,12 +22,12 @@ class BookingService():
         Returns:
             [type]: [description]
         """
-        all_room_occupied = storage.get_room_with_date_interval(RoomOccupation, kwargs["start_date"], kwargs["end_date"])
+        all_room_occupied = storage.get_object_by_date_interval_and_filters(RoomOccupation, kwargs["start_date"], kwargs["end_date"], **{"is_deleted": False})
         all_room_reserved_and_confirmed = storage.get_object_by_date_interval_and_filters(Booking, kwargs["start_date"], kwargs["start_date"], **{"is_deleted": False, "booking_status":BookingStatus.CONFIRMED.value})
         all_room_reserved = storage.get_object_by_date_interval_and_filters(Booking, kwargs["start_date"], kwargs["end_date"], **{"is_deleted": False, "booking_status":BookingStatus.PENDING.value})
         all_room_reserved_progress = storage.get_object_by_date_interval_and_filters(Booking, kwargs["start_date"], kwargs["end_date"], **{"is_deleted": False, "booking_status":BookingStatus.PROGRESS.value})
         
-        
+        #print("occ", all_room_occupied[1].to_dict())
         
         all_room_reserved.extend(all_room_reserved_and_confirmed) if all_room_reserved is not None else [] 
         all_room_reserved.extend(all_room_reserved_progress) if all_room_reserved is not None else []
@@ -37,6 +37,8 @@ class BookingService():
         occupied_room_ids = [room.room_id for room in all_room_occupied]
         all_room_ids = [room.id for room in all_rooms]
         
+        print("all_rooms", all_rooms)
+        
         available_rooms_ids = list(set(all_room_ids) - set(occupied_room_ids))
         
         print("availlable room", available_rooms_ids)
@@ -45,7 +47,7 @@ class BookingService():
         
         available_rooms = [storage.find_by(Room, id=room_id) for room_id in all_room_reserved_ids]
         
-        #print("availlable_chambre", available_rooms)
+        print("availlable_chambre", available_rooms)
         
         all_room_data = return_all_room_items(available_rooms)
         return all_room_data
@@ -119,7 +121,9 @@ class BookingService():
         booking = storage.find_by(Booking, **{"is_deleted": False, "id":object_meta_data["booking_id"], "booking_status":BookingStatus.PENDING.value})
         invoice = storage.find_by(Invoice, **{"is_deleted": False, "id":booking.invoice_id })
         room = storage.find_by(Room, id = booking.room_id)
-        price = Decimal(object_meta_data["percentage"]) * room.room_amount // 100
+        number_of_day = calculate_number_of_nights(booking.start_date, booking.end_date)
+        total_price = number_of_day * room.room_amount
+        price = Decimal(object_meta_data["percentage"]) * total_price // 100
         object_meta_data["settlement_amount"] = price
         data = reformat_request_datas(object_meta_data)
         settlement:Settlement = ObjectManagerInvoice(data).create_settelement()
@@ -153,7 +157,8 @@ class BookingService():
             #room = storage.find_by(Room, **{"is_deleted": False, "id":booking.room_id, "room_status":RoomStatus.RESERVED.value})
             room_category = storage.find_by(RoomCategory, **{"is_deleted": False, "id":room.room_category_id}) if room is not None else None
             customer = storage.find_by(Customer, **{"is_deleted": False, "id":invoice.customer_id}) if invoice is not None else None
-            room_booked = {"booking":booking.to_dict(), "room":room.to_dict(), "room_category":room_category.to_dict(), "customer":customer.to_dict()} if room is not None else {"booking":None, "room":None, "room_category":None, "customer": None}
+            number_of_day = calculate_number_of_nights(booking.start_date, booking.end_date)
+            room_booked = {"booking":booking.to_dict(), "room":room.to_dict(), "room_category":room_category.to_dict(), "customer":customer.to_dict(), "number_of_day":number_of_day} if room is not None else {"booking":None, "room":None, "room_category":None, "customer": None}
             all_booking_room.append(room_booked)
         return all_booking_room
     
@@ -195,4 +200,7 @@ class BookingService():
         print("bookii", booking)
         logging.debug("bookii %s", booking)
         return booking
-    
+
+
+#def get_room_without(room1, room2):
+    #room1_set = set(room1)  

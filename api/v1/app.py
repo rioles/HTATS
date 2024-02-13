@@ -17,9 +17,10 @@ app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 app.config['FLASK_JWT_SECRET_KEY'] = secrets.token_hex(12)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=365*100)
 #app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=5)
 
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)  # Expires in 24 hour
+#app.config['JWT_ACCESS_TOKEN_EXPIRES'] = None  # Expires in 24 hour
 
  
 #FLASK_JWT_SECRET_KEY= secrets.token_hex(12)

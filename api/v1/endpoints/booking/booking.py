@@ -17,7 +17,7 @@ from flask_jwt_extended import  jwt_required
 from services.room_service.room_category_manager.adapter.room_category_adapter import CreateCategoryRoom
 
 @app_views.route('/booking', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required
 @cross_origin()
 def get_room_to_reserved():
     """create a new category"""
@@ -34,7 +34,7 @@ def get_room_to_reserved():
     return make_response(jsonify(result), 200)
 
 @app_views.route('/reserved', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required
 @cross_origin()
 def add_booking():
     """get list of invoice"""
@@ -47,7 +47,7 @@ def add_booking():
     return make_response(jsonify(booking_object), 200)
 
 @app_views.route('/confirmed', methods=['PUT'], strict_slashes=False)
-@jwt_required()
+#@jwt_required
 @cross_origin()
 def confirmed_booking():
     """get list of invoice"""

@@ -1,4 +1,3 @@
-    
 from typing import  Dict
 from models.booking import Booking
 from models.invoice import Invoice
@@ -7,6 +6,11 @@ from models.room_occupation import RoomOccupation
 from services.room_service.room.adapter.room_item_adapter import return_element
 from models.settlement import Settlement
 from models.settlement_invoice import SettlementInvoice
+from models.room import Room
+from models.employee import Employee
+from models.role import Role
+from models.user import User
+from models.user_role import UserRoles
 import random
 import string
 from abc import ABC, abstractmethod
@@ -45,17 +49,36 @@ def reformat_request_data(request_data: Dict[str, str]) -> Dict[str, Dict[str, s
                     "date_of_birth", "email", "document_number", "type_of_document", "institute_name"}
     booking_key = {"booking_status", "booking_price", "room_id", "start_date", "end_date", "invoice_id",
                    "user_id","created_at","updated_at","is_deleted"}
+    employee_key = {"user_id","first_name","last_name","gender","date_of_birth","phone_number","address","email"
+                    ,"institute_name","document_number","type_of_document","profession","reason","id","created_at","updated_at","is_deleted"}
+    room_key = {"room_label","room_amount","room_status","room_category_id","user_id","id","created_at","updated_at","is_deleted"}
+    
+    role_key = {"id","created_at","updated_at","is_deleted","role_name"}
+    
+    user_key = {"id","created_at","updated_at","is_deleted","role_name","username","email"}
+    user_role_key = {"id","created_at","updated_at","is_deleted","role_name","username","email","user_id","role_id"}
     # Extracting data for each category
     occupation_data = return_element(occupation_key, request_data)
     invoice_data = return_element(invoice_key, request_data)
     occupant_data = return_element(occupant_key, request_data)
     booking_data = return_element(booking_key, request_data)
+    employee_data = return_element(employee_key, request_data)
+    room_data = return_element(room_key, request_data)
+    role_data = return_element(role_key, request_data)
+    user_data = return_element(user_key, request_data)
+    user_role_data = return_element(user_role_key, request_data)
+    
    
     # Organizing data within respective sub-dictionaries
     request_data_reformat["occupation_data"] = occupation_data
     request_data_reformat["invoice_data"] = invoice_data
     request_data_reformat["occupant_data"] = occupant_data
     request_data_reformat["booking_data"] = booking_data
+    request_data_reformat["employee_data"] = employee_data
+    request_data_reformat["room_data"] = room_data
+    request_data_reformat["role_data"] = role_data
+    request_data_reformat["user_role_data"] = user_role_data
+    request_data_reformat["user_data"] = user_data
     
     return request_data_reformat
 
@@ -83,6 +106,26 @@ class ObjectManager:
     def create_booking(self):
         booking_data = self.request_data["booking_data"]
         return Booking(**booking_data)
+    
+    def create_employee(self):
+        employee_data = self.request_data["employee_data"]
+        return Employee(**employee_data)
+    
+    def create_room(self):
+        room_data = self.request_data["room_data"]
+        return Room(**room_data)
+    
+    def create_role(self):
+        role_data = self.request_data["role_data"]
+        return Role(**role_data)
+    
+    def create_user_data(self):
+        user_data = self.request_data["user_data"]
+        return User(**user_data)
+    
+    def create_user_role_data(self):
+        user_role_data = self.request_data["user_role_data"]
+        return UserRoles(**user_role_data)
 
 
 

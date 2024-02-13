@@ -10,16 +10,43 @@ from services.room_service.room.port.room_port import RoomPort
 from services.room_service.room.adapter.create_room_adapter import AddRoom
 from models.customer import Customer
 from models.customer_type import CustormerType
-from flask_jwt_extended import  jwt_required
+from flask_jwt_extended import  jwt_required, verify_jwt_in_request
+from flask_jwt_extended.exceptions import JWTExtendedException
 
 
 from services.object_manager_interface import ObjectManagerInterface
 from services.room_service.room_category_manager.adapter.room_category_adapter import CreateCategoryRoom
+
+@app_views.errorhandler(JWTExtendedException)
+def handle_jwt_error(e):
+    return jsonify({'message': 'Invalid or expired JWT token'}), 401
+
+@app_views.errorhandler(JWTExtendedException)
+def handle_invalid_token_error(e):
+    error_message = str(e)
+    if "Expired" in error_message:
+        return jsonify({'message': 'Expired token'}), 401
+    elif "Invalid" in error_message:
+        return jsonify({'message': 'Invalid token'}), 401
+    else:
+        return jsonify({'message': 'Invalid or expired token'}), 401
+
+# Error handler for JWTExtendedException (base class for JWT exceptions)
+@app_views.errorhandler(JWTExtendedException)
+def handle_invalid_token_error(e):
+    return jsonify({'message': 'Invalid or expired token'}), 401
+
+# Error handler for ExpiredSignatureError (specific JWT exception)
+
+
+
+
 @app_views.route('/client', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required
 @cross_origin()
 def post_client():
     """create a new category"""
+    verify_jwt_in_request()
     if not request.get_json():
         return make_response(jsonify(
             {'status': '401', 'message': 'The request data is empty'}), 400)
@@ -31,10 +58,11 @@ def post_client():
 
 
 @app_views.route('/client/<string:client_id>', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required
 @cross_origin()
 def get_client(client_id):
     """create a new client"""
+    verify_jwt_in_request()
     print(client_id)
     customer: CustormPort = CustomerAdapter()
     customer_object = customer.find_object_by(Customer, **{"id":client_id})
@@ -45,10 +73,11 @@ def get_client(client_id):
     return make_response(jsonify(customer_object), 200)
 
 @app_views.route('/client_by_phone/<string:phone_number>', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required
 @cross_origin()
 def get_client_by_phone(phone_number):
     """create a new client"""
+    verify_jwt_in_request()
     print(phone_number)
     customer: CustormPort = CustomerAdapter()
     customer_object = customer.find_object_by(Customer, **{"phone_number":phone_number})
@@ -61,10 +90,17 @@ def get_client_by_phone(phone_number):
 
 
 @app_views.route('/clients_physique', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required
 @cross_origin()
 def get_physiq_clients():
     """create a new client"""
+    try:
+        # Verify JWT in the request
+        verify_jwt_in_request()
+    except JWTExtendedException as e:
+        # If verification fails, handle the exception
+        return handle_jwt_error(e)
+    #verify_jwt_in_request()
     customer: CustormPort = CustomerAdapter()
     kwarg = {"is_deleted": False, "customer_type_id":"c144bd80-fddd-4372-9836-833fa8f9d0c6"}
     customer_object = customer.find_all_client_data(Customer, **kwarg)
@@ -76,7 +112,7 @@ def get_physiq_clients():
 
 
 @app_views.route('/clients_morale', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required
 @cross_origin()
 def get_clients_morale():
     """create a new client"""
@@ -92,7 +128,7 @@ def get_clients_morale():
 
 
 @app_views.route('/clients', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required
 @cross_origin()
 def get_clients():
     """create a new client"""

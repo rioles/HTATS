@@ -57,3 +57,7 @@ class UserManagerInterface(ABC):
         **object_meta_data: Dict[str, str]
     ) -> T:
         pass
+    
+    @abstractmethod
+    def update_user(self, **object_meta_data: Dict[str, str]):
+        pass

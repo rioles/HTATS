@@ -108,8 +108,41 @@ class UserAdapter(UserManagerInterface):
             return {"user": user.to_dict(), "login_history":login_history.to_dict()}
         else:
             return None
+        
+    def update_user(self, **object_meta_data: Dict[str, str]):
+        object_meta_datas = reformat_request_data(object_meta_data)
+        object_meta_datas["user_data"]["id"] = object_meta_data["id_user"]
+        object_meta_datas["employee_data"]["id"] = object_meta_data["id_employee"]
+        object_meta_datas["role_data"]["id"] = object_meta_data["id_role"]
+        user = storage.find_by(User, **{"id":object_meta_data["id_user"]})
+        print("befor",object_meta_datas["user_data"])
+        print("mail", object_meta_datas["user_data"]["email"])
+        print("user_mail", user.email)            
+        print("data for user", object_meta_datas)
+        user_role = storage.find_by(UserRoles, **{"user_id":object_meta_data["id_user"],"role_id" :object_meta_data["id_role"]})
+        print("user_role", user_role)
+        role = storage.find_by(Role, **{"role_name":object_meta_data["role_name"]})
+        print("role", role)
+        try:
+            storage.update_object(Employee,object_meta_data["id_employee"] , **object_meta_datas["employee_data"])
+            storage.update_object(User, object_meta_data["id_user"] , **object_meta_datas["user_data"])
+            storage.update_object(UserRoles, user_role.id , **{"user_id": object_meta_data["id_user"],"role_id": role.id})
             
-
+            emp = storage.find_by(Employee, **{"id":object_meta_data["id_employee"]})
+            user = storage.find_by(User, **{"id":object_meta_data["id_user"]})
+            
+            
+            obj = {
+                "employee": emp.to_dict(),
+                "user": user.to_dict(),
+                "role": role.to_dict(),
+            }
+            return obj
+            
+            
+        except Exception as e:
+            print(e)
+            return None
 def _hash_password(password: str) -> bytes:
     """ Hash password
     """

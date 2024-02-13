@@ -95,6 +95,23 @@ def get_users():
     result = page_obj.get_hyper(page, per_page)
     return jsonify(result)
 
+@app_views.route('/user', methods=['PUT'], strict_slashes=False)
+@cross_origin()
+def put_user():
+    """list of users"""
+    if not request.get_json():
+        return make_response(jsonify(
+            {'status': '400', 'message': 'The request data is empty'}), 400)
+    obj:ObjectManagerInterface = ObjectManagerAdapter()
+    user = obj.find_object_by(User, **{"email":request.get_json()["email"]})
+    #logging.debug("user.. %s", user)
+    if user is not None:
+        return make_response(jsonify(
+            {'status': '409', 'message': f'user with email {user.email} already exists'}), 409)
+    obj:UserManagerInterface = UserAdapter()
+    user = obj.update_user(**request.get_json())
+    return jsonify(user), 200
+
 @app_views.route('/refresh', methods=['GET'], strict_slashes=False)
 @cross_origin()
 @jwt_required()
