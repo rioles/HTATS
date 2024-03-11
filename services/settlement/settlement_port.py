@@ -26,14 +26,6 @@ class SettlementPort(ABC):
     ) -> Dict[str, Any]:
         pass
     
-    """
-    @abstractmethod
-    def get_invoice_list_by_criteria(
-        self, 
-        **object_meta_data: Dict[str, str]
-    ) -> Dict[str, Any]:
-        pass
-    """
     @abstractmethod
     def get_all_invoice_list_by_criteria(
         self, 

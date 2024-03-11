@@ -93,7 +93,6 @@ class RoomOccupationEntityData:
             returns a dictionary of all the key values in __dict__
         """
         my_dict = dict(self.__dict__)
-        print(my_dict)
         keys = {"customer", "room","room_occupation", "booking"}
 
         for key in my_dict:
@@ -131,7 +130,6 @@ class RoomOccupationData:
             returns a dictionary of all the key values in __dict__
         """
         my_dict = dict(self.__dict__)
-        print(my_dict)
         keys = {"room_occupant", "room","room_occupation"}
 
         for key in my_dict:

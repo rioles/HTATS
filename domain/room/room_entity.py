@@ -44,7 +44,6 @@ class RoomDataAgregate:
     
         for element in my_dict:
             if element in key and element is not None:
-                print(my_dict[element].to_dict())
                 my_object[element] = my_dict[element].to_dict()
             if element == "room_item" or element == "bookings":
                 my_object[element] = my_dict[element]

@@ -60,3 +60,19 @@ class RoomItemPort(ABC):
         Returns:
             A list of objects.
         """
+        
+    def all_not_available_room(self, **kwargs)-> List[str]:
+        """  Retrieve a list of all rooms that are occupied during or booked.
+
+        Returns:
+            List[str]: [description]
+        """
+    def delete_room(
+        self, 
+        **object_meta_data: Dict[str, str]
+    ) -> T:
+        """  delete rooms that are occupied during or booked.
+
+        Returns:
+            object: room_object that is deleted
+        """

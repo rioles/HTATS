@@ -65,6 +65,15 @@ class DBSManager(HotelReservationCrudPort):
         """commit current done work
         """
         self.__session.commit()
+        
+    
+    @property
+    def get_session(self):
+        """
+        getter function for W
+        Returns weights
+        """
+        return self.__session
 
     def find_by(self, target_class: T,  **kwargs) -> Optional[T]:
         """

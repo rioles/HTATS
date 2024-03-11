@@ -27,7 +27,6 @@ class SettlementAdapter(SettlementPort):
         current_datetime = datetime.now()
         start_day = current_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
         sum_amount = storage.get_sum_with_filter_and_interval(Settlement, start_day, current_datetime, "settlement_amount", **{"user_id":object_meta_data["user_id"]})
-        print("it is a sum_amount",sum_amount)
         return {"total_amount":sum_amount}
 
     def get_settlement_list_by_criteria(
@@ -36,7 +35,6 @@ class SettlementAdapter(SettlementPort):
     ) -> Dict[str, Any]:
         obj: ObjectManagerInterface = ObjectManagerAdapter()
         user = obj.find_object_by(User, **{"id":object_meta_data["user_id"], "is_deleted":False})
-        print("this is the user",user)
         object_meta_data = convert_date_update_data(object_meta_data)   
         list_settlement = SettlementUser(user, object_meta_data)
         return list_settlement.to_dict()
@@ -49,7 +47,6 @@ class SettlementAdapter(SettlementPort):
         obj: ObjectManagerInterface = ObjectManagerAdapter()
         customer = obj.find_object_by(Customer, **{"id":object_meta_data["customer_id"],"is_deleted":False})
         object_meta_data = convert_date_update_data(object_meta_data)
-        print("rrrtttr", storage.get_sum_with_filter_and_interval(Invoice, object_meta_data["start_date"], object_meta_data["end_date"], "invoice_amount", **{"invoice_status":InvoiceStatus.UNPAID.value,"customer_id":customer.id}))
         invoices = InvoiceEntity(customer, object_meta_data)
         return invoices.to_dict()
     

@@ -10,7 +10,7 @@ from services.object_manager_interface import ObjectManagerInterface
 from services.room_service.room_category_manager.adapter.room_category_adapter import CreateCategoryRoom
 
 @app_views.route('/room_category', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def post_room_category():
     """create a new category"""
@@ -24,7 +24,7 @@ def post_room_category():
     return make_response(jsonify(category_room.to_dict()), 201)
 
 @app_views.route('/room_categories', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def get_room_categories():
     """get room categories information for all patients"""
@@ -40,7 +40,7 @@ def get_room_categories():
 
 @app_views.route('/room_categorie/<string:room_categorie_id>', methods=['GET'],
                  strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def get_room_categorie(room_categorie_id : str):
     """get room category information for specified amenity"""

@@ -11,7 +11,7 @@ from services.room_service.room.port.room_item_port import RoomItemPort
 from flask_jwt_extended import  jwt_required
 
 @app_views.route('/room_item', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def post_room_item():
     """create a new category"""
@@ -27,7 +27,7 @@ def post_room_item():
 
 
 @app_views.route('/rooms', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def get_rooms():
     """create a new client"""
@@ -40,7 +40,7 @@ def get_rooms():
     return make_response(jsonify(result), 200)
 
 @app_views.route('/room', methods=['PUT'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def put_room():
     """create a new category"""
@@ -54,7 +54,7 @@ def put_room():
 
 
 @app_views.route('/room_item', methods=['PUT'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def put_room_item():
     """create a new category"""

@@ -30,7 +30,6 @@ class SettlementUser:
         
         
     def get_settlement_by_user(self):
-        print("just to see",self.user)
         settlemens = storage.find_all_by(Settlement, **{"user_id": self.user.id})
         return settlemens
     
@@ -99,7 +98,6 @@ class SettlementUser:
             returns a dictionary of all the key values in __dict__
         """
         my_dict = dict(self.__dict__)
-        print(my_dict)
         keys = {"settlements","customers","amount"}
 
         

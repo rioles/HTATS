@@ -69,7 +69,5 @@ def get_room_by_room_label(room: Room):
     return room
 
 
-c:RoomPrice = RoomPrice("150.00")
-f:RoomPrice = RoomPrice(150.00)
-print(c)
+
 

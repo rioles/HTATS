@@ -22,7 +22,7 @@ class BookingService():
         Returns:
             [type]: [description]
         """
-        all_room_occupied = storage.get_object_by_date_interval_and_filters(RoomOccupation, kwargs["start_date"], kwargs["end_date"], **{"is_deleted": False})
+        all_room_occupied = storage.get_object_by_date_interval_and_filters(RoomOccupation, kwargs["real_start_date"], kwargs["real_end_date"], **{"is_deleted": False})
         all_room_reserved_and_confirmed = storage.get_object_by_date_interval_and_filters(Booking, kwargs["start_date"], kwargs["start_date"], **{"is_deleted": False, "booking_status":BookingStatus.CONFIRMED.value})
         all_room_reserved = storage.get_object_by_date_interval_and_filters(Booking, kwargs["start_date"], kwargs["end_date"], **{"is_deleted": False, "booking_status":BookingStatus.PENDING.value})
         all_room_reserved_progress = storage.get_object_by_date_interval_and_filters(Booking, kwargs["start_date"], kwargs["end_date"], **{"is_deleted": False, "booking_status":BookingStatus.PROGRESS.value})
@@ -37,21 +37,16 @@ class BookingService():
         occupied_room_ids = [room.room_id for room in all_room_occupied]
         all_room_ids = [room.id for room in all_rooms]
         
-        print("all_rooms", all_rooms)
-        
         available_rooms_ids = list(set(all_room_ids) - set(occupied_room_ids))
         
-        print("availlable room", available_rooms_ids)
         
         all_room_reserved_ids = list(set(available_rooms_ids) - set(all_reserved_room_ids))
         
         available_rooms = [storage.find_by(Room, id=room_id) for room_id in all_room_reserved_ids]
         
-        print("availlable_chambre", available_rooms)
         
         all_room_data = return_all_room_items(available_rooms)
         return all_room_data
-    
     
     def add_object(
         self,
@@ -82,7 +77,6 @@ class BookingService():
         
         data = reformat_request_data(object_meta_data)
         invoice:Invoice = ObjectManager(data).create_invoice()
-        print("id invoice", invoice.id)
         object_meta_data["invoice_id"] = invoice.id
         data = reformat_request_data(object_meta_data)
         booking: Booking = ObjectManager(data).create_booking()
@@ -197,10 +191,6 @@ class BookingService():
             customer = storage.find_by(Customer, **{"id": invoice.customer_id, "is_deleted": False}) if invoice is not None else None
             obj = {"booking": reserved.to_dict(),"customer": customer.to_dict()} if customer is not None else {"booking": reserved.to_dict(),"customer": None}
             booking.append(obj)
-        print("bookii", booking)
         logging.debug("bookii %s", booking)
         return booking
-
-
-#def get_room_without(room1, room2):
-    #room1_set = set(room1)  
+  

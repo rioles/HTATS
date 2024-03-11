@@ -106,10 +106,12 @@ class RoomOccupationData:
     
     def num_of_day(self):
         occupation = self.get_room_occupation_by_invoice()
+        booking = self.get_booking_by_invoice()
         if occupation is not None:
             return calculate_number_of_nights(occupation.start_date, occupation.end_date)
-        return 0
-    
+        else:
+            return calculate_number_of_nights(booking.start_date, booking.end_date)
+
     def to_dict(self):
         """creates dictionary of the class  and returns
         Return:

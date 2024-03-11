@@ -63,7 +63,6 @@ def post_client():
 def get_client(client_id):
     """create a new client"""
     verify_jwt_in_request()
-    print(client_id)
     customer: CustormPort = CustomerAdapter()
     customer_object = customer.find_object_by(Customer, **{"id":client_id})
     if customer_object is None:
@@ -78,10 +77,8 @@ def get_client(client_id):
 def get_client_by_phone(phone_number):
     """create a new client"""
     verify_jwt_in_request()
-    print(phone_number)
     customer: CustormPort = CustomerAdapter()
     customer_object = customer.find_object_by(Customer, **{"phone_number":phone_number})
-    print(customer_object)
     if customer_object is None:
         return make_response(jsonify(
             {'status': '404', 'message': 'No client is associated with this phone number.'}), 404)
@@ -142,7 +139,7 @@ def get_clients():
 
 
 @app_views.route('/customer', methods=['PUT'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def update_client():
     """create a new client"""

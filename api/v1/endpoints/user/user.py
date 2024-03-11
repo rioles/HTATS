@@ -43,7 +43,6 @@ def get_user():
     if not request.get_json():
         return make_response(jsonify(
             {'status': '404', 'message': 'The request data is empty'}), 400)
-    print(request.get_json())
     obj:ObjectManagerInterface = ObjectManagerAdapter()
     user = obj.find_object_by(User, **{"email":request.get_json()["email"]})
     role = None
@@ -68,12 +67,10 @@ def login_handler():
     user_manager:UserManagerInterface = UserAdapter() 
     user = user_manager.get_user_log(**request.get_json())
     obj:ObjectManagerInterface = ObjectManagerAdapter()
-    print(user)
     if user is not None:
         access_token = create_access_token(identity=user["user"]["email"])
         refresh_token = create_refresh_token(identity=user["user"]["email"])
         decoded_token = decode_token(access_token)
-        print("acess tokii",decoded_token)
         response_data = {'access_token': access_token, 'refresh_token': refresh_token, 'user': user}
         connexion_metadata = {"user_id":user["user"]["id"], "login_timestamp": datetime.utcnow()}
         obj.add_object(LoginHistory, **connexion_metadata)
@@ -88,7 +85,6 @@ def get_users():
     """list of users"""
     obj:UserManagerInterface = UserAdapter()
     users = obj.find_all_users_entities()
-    print(users)
     page_obj = Paginator(users)
     page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
     per_page = request.args.get('per_page', default=10, type=int)  # Get the per_page parameter from the request query string
@@ -114,7 +110,7 @@ def put_user():
 
 @app_views.route('/refresh', methods=['GET'], strict_slashes=False)
 @cross_origin()
-@jwt_required()
+#@jwt_required()
 def refresh_access():
     """refresh token for users"""
     identity = get_jwt_identity()
@@ -129,7 +125,7 @@ def refresh_access():
     
 @app_views.route('/logout', methods=['POST'], strict_slashes=False)
 @cross_origin()
-@jwt_required()
+#@jwt_required()
 def revoke_token():
     jwt = get_jwt()
     jti = jwt["jti"]
@@ -144,7 +140,7 @@ def revoke_token():
     return make_response(jsonify(token_revok.to_dict()), 201)
 
 @app_views.route('/whoami', methods=['GET'], strict_slashes=False)
-@cross_origin()
+#@cross_origin()
 @jwt_required()
 def whoami():
     return make_response(jsonify({"message":"yako"}))

@@ -7,33 +7,30 @@ from flask_jwt_extended import  jwt_required
 from services.paginator import Paginator
 
 @app_views.route('/earn/<string:user_id>', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def get_settlement_amount(user_id):
     data = {"user_id":user_id}
     obj:SettlementPort = SettlementAdapter()
     summ = obj.get_sum_with_intervall(**data)
-    print("it is a sum",summ)
     return make_response(jsonify(summ), 200)
 
 @app_views.route('/sttlement_by_user', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def get_list_settlement():
     """get list of settlement"""
     if not request.get_json():
         return make_response(jsonify(
             {'status': '401', 'message': 'The request data is empty'}), 400)
-    print(request.get_json())
     obj:SettlementPort = SettlementAdapter()
     settlement_obj = obj.get_settlement_list_by_criteria(**request.get_json())
 
     return make_response(jsonify(settlement_obj), 200)
 
 @app_views.route('/unpaid_invoice_customer', methods=['POST'], strict_slashes=False)
-@jwt_required()
-@cross_origin()
 #@jwt_required()
+@cross_origin()
 def get_unpaid_list_invoice():
     """get list of invoice"""
     if not request.get_json():
@@ -47,7 +44,7 @@ def get_unpaid_list_invoice():
 
 
 @app_views.route('/sttlements', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def get_all_settlement():
     """get list of settlement"""
@@ -66,9 +63,8 @@ def get_all_settlement():
 
 
 @app_views.route('/invoice_customer', methods=['POST'], strict_slashes=False)
-@jwt_required()
-@cross_origin()
 #@jwt_required()
+@cross_origin()
 def get_list_invoice():
     """get list of invoice"""
     if not request.get_json():

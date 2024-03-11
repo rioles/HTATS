@@ -11,13 +11,15 @@ from services.paginator import Paginator
 
 
 from flask_jwt_extended import  jwt_required
+from services.room_service.room.adapter.room_item_adapter import RoomItemAdapter
+from services.room_service.room.port.room_item_port import RoomItemPort
 
 
 from services.room_service.room_category_manager.adapter.room_category_adapter import CreateCategoryRoom
 
 @app_views.route('/occupation', methods=['POST'], strict_slashes=False)
 @cross_origin()
-@jwt_required()
+#@jwt_required()
 def get_room_not_occupied():
     """create a new category"""
     if not request.get_json():
@@ -34,7 +36,7 @@ def get_room_not_occupied():
 
 
 @app_views.route('/invoice', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def post_invoice():
     """create a new category"""
@@ -48,7 +50,7 @@ def post_invoice():
     return make_response(jsonify(all_object), 201)
 
 @app_views.route('/occupant', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def post_room_occupant():
     """create a new category"""
@@ -62,7 +64,7 @@ def post_room_occupant():
     return make_response(jsonify(all_object), 201)
 
 @app_views.route('/invoice_with_customer', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def get_invoice_with_customer():
     obj:OccupationPort = OccupationAdapter()
@@ -76,7 +78,7 @@ def get_invoice_with_customer():
 
 
 @app_views.route('/make_payment', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def make_payment():
     if not request.get_json():
@@ -88,7 +90,7 @@ def make_payment():
 
 
 @app_views.route('/invoices', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def get_invoice_by_customer():
     obj:OccupationPort = OccupationAdapter()
@@ -101,7 +103,7 @@ def get_invoice_by_customer():
 
 
 @app_views.route('/room_and_occupation', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def get_room_occupation_by_invoice():
     obj:OccupationPort = OccupationAdapter()
@@ -109,7 +111,7 @@ def get_room_occupation_by_invoice():
     return make_response(jsonify(room_occupation_adapter), 200)
 
 @app_views.route('/room_and_occupants', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def get_room():
     """create a new client"""
@@ -123,7 +125,7 @@ def get_room():
 
 
 @app_views.route('/update_room', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def update_room():
     """create a new client"""
@@ -136,7 +138,7 @@ def update_room():
     return make_response(jsonify(room_objects), 200)
 
 @app_views.route('/room_availlable', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def room_availlable():
     """get all room availlable """
@@ -151,7 +153,7 @@ def room_availlable():
 
 
 @app_views.route('/current_ended_room', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def current_ended_room():
     """get all room availlable """
@@ -164,7 +166,7 @@ def current_ended_room():
     return make_response(jsonify(result), 200)
 
 @app_views.route('/current_occupied_room', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def current_occupied_room():
     """get all room availlable """
@@ -175,5 +177,23 @@ def current_occupied_room():
     per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
     result = page_obj.get_hyper(page, per_page)
     return make_response(jsonify(result), 200)
+
+
+@app_views.route('/delete_room', methods=['PUT'], strict_slashes=False)
+#@jwt_required()
+@cross_origin()
+def delete_rooms():
+    """delete room """
+    if not request.get_json():
+        return make_response(jsonify(
+            {'status': '401', 'message': 'The request data is empty'}), 400)
+    room_ob: RoomItemPort = RoomItemAdapter()
+    room_objects = set(room_ob.all_not_available_room(**request.get_json()))
+    room_id = request.get_json()["room_id"]
+    if room_id in room_objects:
+        return make_response(jsonify(
+            {'status': '409', 'message': 'This room is booked or occupied'}), 409)
+    room_delete = room_ob.delete_room(**request.get_json())
+    return make_response(jsonify(room_delete), 200)
 
 

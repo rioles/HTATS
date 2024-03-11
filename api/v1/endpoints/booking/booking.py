@@ -41,7 +41,6 @@ def add_booking():
     if not request.get_json():
         return make_response(jsonify(
             {'status': '401', 'message': 'The request data is empty'}), 400)
-    print("request data", request.get_json())
     obj:BookingService = BookingService()
     booking_object = obj.add_object(**request.get_json())
     return make_response(jsonify(booking_object), 200)
@@ -57,7 +56,6 @@ def confirmed_booking():
 
     obj:BookingService = BookingService()
     obj = obj.confirmed_booking(**request.get_json())
-    print("check if is ok", obj)
     if obj is not None:
         return make_response(jsonify(obj), 200)
     else:
@@ -67,7 +65,7 @@ def confirmed_booking():
     
 
 @app_views.route('/room_booked', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def get_reserved_room():
     """create a new category"""
@@ -81,7 +79,7 @@ def get_reserved_room():
 
 
 @app_views.route('/canceled_booking', methods=['PUT'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def canceled_booking():
     """canceled booking"""
@@ -94,7 +92,7 @@ def canceled_booking():
     return make_response(jsonify({"message":"update made successfully", "status":200}), 200)
 
 @app_views.route('/confirmed_booking', methods=['GET'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def all_booking_confirmed():
     """create a new category"""
@@ -108,7 +106,7 @@ def all_booking_confirmed():
        
 
 @app_views.route('/booking_by_room', methods=['POST'], strict_slashes=False)
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def booking_by_room():
     """create a new category"""
@@ -117,10 +115,5 @@ def booking_by_room():
             {'status': '401', 'message': 'The request data is empty'}), 400)
     obj = BookingService()
     booking = obj.get_booking_by_room_and_date(**request.get_json())
-    print(booking)
-    #page_obj = Paginator(room)
-    #page = request.args.get('page', default=1, type=int)  # Get the page parameter from the request query string
-    #per_page = request.args.get('per_page', default=100, type=int)  # Get the per_page parameter from the request query string
-    #result = page_obj.get_hyper(page, per_page)
     return make_response(jsonify(booking), 200)
 

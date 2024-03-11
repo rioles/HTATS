@@ -1,8 +1,10 @@
 from typing import Any, Dict, List, Optional, Set, TypeVar
 from domain.room.room_data import RoomData
 from domain.room.room_entity import RoomDataAgregate
+from models.booking import Booking, BookingStatus
 from models.room import Room
 from models.room_item import RoomItem
+from models.room_occupation import RoomOccupation
 from services.object_manager_adapter import ObjectManagerAdapter
 from services.object_manager_interface import ObjectManagerInterface
 from services.room_service.room.adapter.create_room_adapter import AddRoom
@@ -141,16 +143,42 @@ class RoomItemAdapter(RoomItemPort):
         self, 
         **object_meta_data: Dict[str, str]
     ) -> Room:
+        print("id_roommm", object_meta_data["room_id"])
+        storage.update_object(Room, object_meta_data["room_id"], **{"is_deleted":True})
+        return storage.find_by(Room, **{"id":object_meta_data["room_id"]}).to_dict()
+    
+    def update_room_item(
+        self, 
+        **object_meta_data: Dict[str, str]
+    ) -> Room:
+        print("id_roommm", object_meta_data["room_item_id"])
+        storage.update_object(RoomItem, object_meta_data["room_item_id"], **object_meta_data)
+        return storage.find_by(RoomItem, **{"id":object_meta_data["room_item_id"]}).to_dict()
+
+
+    
+    def all_not_available_room(self, **kwargs)-> List[str]:
+        """all room that is occupied
+
+        Returns:
+            [type]: [description]
+        """
+        all_room_occupied = storage.find_all_by(RoomOccupation, **{"is_deleted": False, "room_id":kwargs["room_id"]} )
+        all_room_reserved_and_confirmed = storage.find_all_by(Booking,  **{"is_deleted": False, "booking_status":BookingStatus.CONFIRMED.value, "room_id":kwargs["room_id"]})
+        all_room_reserved = storage.find_all_by(Booking, **{"is_deleted": False, "booking_status":BookingStatus.PENDING.value, "room_id":kwargs["room_id"]})
+        all_room_reserved_progress = storage.find_all_by(Booking, **{"is_deleted": False, "booking_status":BookingStatus.PROGRESS.value, "room_id":kwargs["room_id"]})
         
-        room = storage.find_by(Room, **{"id":object_meta_data["id"]})
-        room_items = storage.find_all_by(RoomItem, **{"room_id":object_meta_data["id"]})
+        all_room_reserved.extend(all_room_reserved_and_confirmed) if all_room_reserved is not None else [] 
+        all_room_reserved.extend(all_room_reserved_progress) if all_room_reserved is not None else []
+        all_room_reserved.extend(all_room_occupied) if all_room_reserved is not None else []
         
-        storage.update_object(Room, room.id, **{"is_delete": True})
+        all_reserved_room_ids = [room.room_id for room in all_room_reserved]
+        #available_rooms_occ = [storage.find_by(Room, id=room_id) for room_id in all_reserved_room_ids]
         
-        for room_item in room_items:
-            storage.update_object(RoomItem, room_item.id, **{"is_delete": True})
+        #print("availlable_chambre", available_rooms_occ)
         
-        return room.to_dict()
+        all_room_data = all_reserved_room_ids
+        return all_room_data
             
     
     
