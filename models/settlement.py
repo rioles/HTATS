@@ -16,3 +16,5 @@ class Settlement(BaseModel, Base):
     invoices = relationship("Invoice", secondary="settlement_invoice", back_populates="settlements")
     payment_type_id = Column(String(60), ForeignKey('payment_type.id'), nullable=False)
     user_id = Column(String(60), ForeignKey('user.id'), nullable=False)
+    discount_amount = Column(Numeric(10, 2), nullable=False)
+    amount_paid = Column(Numeric(10, 2), nullable=False)

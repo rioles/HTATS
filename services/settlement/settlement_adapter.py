@@ -26,7 +26,7 @@ class SettlementAdapter(SettlementPort):
         
         current_datetime = datetime.now()
         start_day = current_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
-        sum_amount = storage.get_sum_with_filter_and_interval(Settlement, start_day, current_datetime, "settlement_amount", **{"user_id":object_meta_data["user_id"]})
+        sum_amount = storage.get_sum_with_filter_and_interval(Settlement, start_day, current_datetime, "amount_paid", **{"user_id":object_meta_data["user_id"]})
         return {"total_amount":sum_amount}
 
     def get_settlement_list_by_criteria(

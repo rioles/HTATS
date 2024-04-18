@@ -199,6 +199,7 @@ class OccupationAdapter(OccupationPort):
             settlemen_invoice.save()
             storage.update_object(Invoice,invoice.id, **{"invoice_status":InvoiceStatus.PAID.value})
             invoice = storage.find_by(Invoice, **{"id":object_meta_data["invoice_id"]})
+            print(settlement.to_dict())
             return {"settlement":settlement.to_dict(), "settlemen_invoice":settlemen_invoice.to_dict(), "invoice":invoice.to_dict()}
         except Exception as e:
             print(e)

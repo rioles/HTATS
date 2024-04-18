@@ -91,12 +91,12 @@ def get_client_by_phone(phone_number):
 @cross_origin()
 def get_physiq_clients():
     """create a new client"""
-    try:
+    #try:
         # Verify JWT in the request
-        verify_jwt_in_request()
-    except JWTExtendedException as e:
+        #verify_jwt_in_request()
+    #except JWTExtendedException as e:
         # If verification fails, handle the exception
-        return handle_jwt_error(e)
+        #return handle_jwt_error(e)
     #verify_jwt_in_request()
     customer: CustormPort = CustomerAdapter()
     kwarg = {"is_deleted": False, "customer_type_id":"c144bd80-fddd-4372-9836-833fa8f9d0c6"}

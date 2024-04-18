@@ -3,6 +3,8 @@ from decimal import Decimal
 from typing import Dict, List, Optional
 from models.booking import Booking
 from models.customer_type import CustormerType
+from models.settlement import Settlement
+from models.settlement_invoice import SettlementInvoice
 from services.object_manager_adapter import ObjectManagerAdapter
 from services.object_manager_interface import ObjectManagerInterface
 from models.customer import Customer
@@ -72,6 +74,7 @@ class RoomOccupationData:
     room: Room = Optional[Room]
     room_occupation:RoomOccupation = Optional[RoomOccupation]
     booking:Booking = Optional[Booking]
+    settlement:Settlement = Optional[Settlement]
 
     
     def __post_init__(self):
@@ -79,6 +82,7 @@ class RoomOccupationData:
         self.room_occupation = self.get_room_occupation_by_invoice()
         self.number_of_day = self.num_of_day()
         self.booking = self.get_booking_by_invoice()
+        self.settlement = self.get_settlement_by_invoice()
 
     
     def get_room_occupation_by_invoice(self)->RoomOccupation:
@@ -86,6 +90,16 @@ class RoomOccupationData:
         ids = self.invoice
         room_occupation = obj.find_object_by(RoomOccupation, **{"invoice_id":ids.id})
         return room_occupation
+    
+    
+    def get_settlement_by_invoice(self)->Settlement:
+        obj: ObjectManagerInterface = ObjectManagerAdapter()
+        ids = self.invoice
+        print(ids)
+        settlement_invoice = obj.find_object_by(SettlementInvoice, **{"invoice_id":ids.id})
+        print(settlement_invoice)
+        settlement_object = obj.find_object_by(Settlement, **{"id":settlement_invoice.settlement_id}) if settlement_invoice is not None else None
+        return settlement_object
     
     def get_booking_by_invoice(self):
         obj: ObjectManagerInterface = ObjectManagerAdapter()
@@ -119,7 +133,7 @@ class RoomOccupationData:
         """
         my_dict = dict(self.__dict__)
         print(my_dict)
-        keys = {"invoice", "room","room_occupation","booking"}
+        keys = {"invoice", "room","room_occupation","booking", "settlement"}
 
         for key in my_dict:
             if key in keys:
