@@ -228,11 +228,11 @@ def calculate_number_of_nightss(checkin_datetime, checkout_datetime):
     num_nights = (checkout_dt - checkin_dt).days
 
     # If the check-in time is before 12:00 PM, add one night
-    if checkin_dt.time() < time(12, 0, 0):
+    if checkin_dt.time() < time(13, 0, 0):
         num_nights += 1
 
     # If the check-out time is greater than or equal to 12:00 PM, add one day
-    if checkout_dt.time() >= time(12, 0, 0):
+    if checkout_dt.time() >= time(13, 0, 0):
         num_nights += 1
 
     return num_nights
@@ -265,11 +265,11 @@ def calculate_number_of_nights(checkin_datetime, checkout_datetime):
     # Check for nights within the 12-hour window
 
     # Night on check-in if before noon
-    if checkin_dt.time() < time(12, 0, 0):
+    if checkin_dt.time() < time(13, 0, 0):
         num_nights += 1
 
     # Night on check-out if after or equal to noon on the next day
-    if checkout_dt.time() >= time(12, 0, 0) and checkout_dt.date() > checkin_dt.date():
+    if checkout_dt.time() >= time(13, 0, 0) and checkout_dt.date() > checkin_dt.date():
         num_nights += 1
 
     return num_nights

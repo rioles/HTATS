@@ -16,18 +16,20 @@ class DateValue:
 
     def __check_date(self):
         if self.__date is None:
-            raise ValueError("Date should not be None")
-
+            self.__date = datetime.now()
         if isinstance(self.__date, str):
             self._handle_string_date()
 
         elif isinstance(self.__date, datetime):
             self._handle_datetime_date()
-
         elif isinstance(self.__date, date):
             self._handle_date_date()
        
     def _handle_string_date(self):
+        if  self.__date is None or self.__date.strip() == "":
+            self.__date = datetime.now() 
+            return
+        
         try:
             if 'T' in self.__date:
                 self.__date = self._parse_time_string(self.__date)

@@ -101,9 +101,9 @@ def put_user():
     obj:ObjectManagerInterface = ObjectManagerAdapter()
     user = obj.find_object_by(User, **{"email":request.get_json()["email"]})
     #logging.debug("user.. %s", user)
-    if user is not None:
-        return make_response(jsonify(
-            {'status': '409', 'message': f'user with email {user.email} already exists'}), 409)
+    #if user is not None:
+        #return make_response(jsonify(
+            #{'status': '409', 'message': f'user with email {user.email} already exists'}), 409)
     obj:UserManagerInterface = UserAdapter()
     user = obj.update_user(**request.get_json())
     return jsonify(user), 200

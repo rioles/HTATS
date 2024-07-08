@@ -10,6 +10,6 @@ from models.basic_base import Base
 class Employee(BasePerson, Base):
     """Class representing the doctor table"""
     __tablename__ = 'employee'
-    user_id = Column(String(60), ForeignKey('user.id'), nullable=False)
+    user_id = Column(String(60), ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
 
     

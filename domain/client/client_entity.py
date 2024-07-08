@@ -25,7 +25,10 @@ class ClientData:
         self.__telephone = self.get_phone_number()
     
     def get_date(self)-> datetime:
-        date: DateValue = DateValue(self.customer.date_of_birth) if self.customer.date_of_birth is not None else datetime.utcnow()
+        if self.customer.date_of_birth is None:
+            date: DateValue = DateValue().date
+        else:
+            date: DateValue = DateValue(self.customer.date_of_birth).date
         return date
       
     def get_email(self):
@@ -46,12 +49,12 @@ class ClientData:
     def map_customer_entity_to_customer_orm(self)-> Customer:
         customer_orm: Customer = Customer(
         id = self.id,
-        user_id = self.user_id,
+        user_id = self.customer.user_id,
         last_name = self.customer.last_name,
         first_name = self.customer.first_name,
         gender = self.customer.gender,
         phone_number = self.telephone.phone_number,
-        date_of_birth = self.date.date,
+        date_of_birth = self.date,
         email = self.email.email,
         institute_name = self.customer.institute_name,
         customer_type_id = self.type_customer.id)
@@ -91,4 +94,20 @@ class ClientData:
                 my_dict[element] = my_dict[element].to_dict()
         return my_dict
 
+argg ={
+    "first_name": "der",
+    "last_name": "chter",
+    "date_of_birth": '',
+    "gender": "homme",
+    "ifu": "2136054",
+    "phone_number": "97009368",
+    "email": "",
+    "address": "cotonou",
+    "customer_type_id": "c144bd80-fddd-4372-9836-833fa8f9d0c6",
+    "user_id": "b25df142-0ec1-4422-ac7e-74dd5926b90c"
+}
+c:Customer = Customer(**argg)
 
+print(c)
+a = ClientData(c.id,c).map_customer_entity_to_customer_orm()
+print(a.save())

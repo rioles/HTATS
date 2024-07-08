@@ -11,6 +11,7 @@ from services.room_service.room.adapter.create_room_adapter import AddRoom
 from services.room_service.room.port.room_item_port import RoomItemPort
 from services.room_service.room.port.room_port import RoomPort
 from models import storage
+from datetime import datetime, date
 T = TypeVar('T')  # Type variable for the current class
 
 
@@ -194,6 +195,8 @@ def return_element(element_set: Set[str], request_data:Dict[str, str])-> Dict[st
     for element in element_set:
         if element in request_data:
             data[element] = request_data[element]
+    if "date_of_birth" in data and isinstance("date_of_birth", date):
+        data["date_of_birth"] = datetime.combine(element, datetime.min.time())  
     return data
 
     

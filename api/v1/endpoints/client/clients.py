@@ -46,15 +46,18 @@ def handle_invalid_token_error(e):
 @cross_origin()
 def post_client():
     """create a new category"""
-    verify_jwt_in_request()
     if not request.get_json():
         return make_response(jsonify(
             {'status': '401', 'message': 'The request data is empty'}), 400)
     
-    obj:ObjectManagerInterface = ObjectManagerAdapter()  
-    client = obj.add_object(
+    #obj:ObjectManagerInterface = ObjectManagerAdapter()  
+    #client = obj.add_object(
+        #Customer, **request.get_json())
+    
+    client:CustomerAdapter = CustomerAdapter() 
+    client = client.add_object(
         Customer, **request.get_json())
-    return make_response(jsonify(client.to_dict()), 201)
+    return make_response(jsonify(client), 201)
 
 
 @app_views.route('/client/<string:client_id>', methods=['GET'], strict_slashes=False)
@@ -72,11 +75,9 @@ def get_client(client_id):
     return make_response(jsonify(customer_object), 200)
 
 @app_views.route('/client_by_phone/<string:phone_number>', methods=['GET'], strict_slashes=False)
-#@jwt_required
 @cross_origin()
 def get_client_by_phone(phone_number):
     """create a new client"""
-    verify_jwt_in_request()
     customer: CustormPort = CustomerAdapter()
     customer_object = customer.find_object_by(Customer, **{"phone_number":phone_number})
     if customer_object is None:
