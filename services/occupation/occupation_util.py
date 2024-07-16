@@ -237,6 +237,44 @@ def calculate_number_of_nightss(checkin_datetime, checkout_datetime):
 
     return num_nights
 
+def calculate_number_of_nightsss(checkin_datetime, checkout_datetime):
+    """
+    Calculate the number of nights between check-in and check-out datetimes,
+    considering nights within a 12-hour window around midnight.
+
+    Parameters:
+        checkin_datetime (str or datetime): Check-in datetime in the format 'YYYY-MM-DDTHH:MM:SS' or datetime object.
+        checkout_datetime (str or datetime): Check-out datetime in the format 'YYYY-MM-DDTHH:MM:SS' or datetime object.
+    Returns:
+        int: Number of nights.
+    """
+    if isinstance(checkin_datetime, str):
+        checkin_dt = parser.parse(checkin_datetime)
+    else:
+        checkin_dt = checkin_datetime
+
+    if isinstance(checkout_datetime, str):
+        checkout_dt = parser.parse(checkout_datetime)
+    else:
+        checkout_dt = checkout_datetime
+
+    # Calculate the number of nights based on days difference
+    num_nights = (checkout_dt.date() - checkin_dt.date()).days
+
+    # Check for nights within the 12-hour window
+
+    # Night on check-in if before noon
+    if checkin_dt.time() < time(13, 0, 0):
+        num_nights += 1
+
+    # Night on check-out if after or equal to noon on the next day
+    if checkout_dt.time() >= time(13, 0, 0) and checkout_dt.date() > checkin_dt.date():
+        num_nights += 1
+
+    return num_nights
+
+
+
 def calculate_number_of_nights(checkin_datetime, checkout_datetime):
     """
     Calculate the number of nights between check-in and check-out datetimes,
@@ -269,7 +307,7 @@ def calculate_number_of_nights(checkin_datetime, checkout_datetime):
         num_nights += 1
 
     # Night on check-out if after or equal to noon on the next day
-    if checkout_dt.time() >= time(13, 0, 0) and checkout_dt.date() > checkin_dt.date():
+    if checkout_dt.time() >= time(13, 0, 0):
         num_nights += 1
 
     return num_nights

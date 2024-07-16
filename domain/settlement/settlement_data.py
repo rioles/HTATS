@@ -31,16 +31,16 @@ class SettlementUser:
         
     def get_settlement_by_user(self):
         settlemens = storage.find_all_by(Settlement, **{"user_id": self.user.id})
+        #print("settlement", settlemens)
         return settlemens
     
     def get_settlements_object_by_user(self) -> List[Settlement]:
-        if self.is_user_includ == True:
+        if self.is_user_includ:
             settlements = storage.get_object_by_date_interval_and_filter(Settlement, self.meta_data["start_date"], self.meta_data["end_date"], **{"user_id": self.user.id, "is_deleted":False} )
             return settlements
         else:
             settlements = storage.get_object_by_date_interval_and_filter(Settlement, self.meta_data["start_date"], self.meta_data["end_date"], **{"is_deleted":False} )
-
-        return settlements
+            return settlements
     
     def get_settlements_object_by_users(self) -> List[Settlement]:
         settlement_objects = []
@@ -51,16 +51,17 @@ class SettlementUser:
         return settlement_objects
     
     def get_settlemen_invoice(self) -> List[SettlementInvoice]:
-        settlements = self.get_settlement_by_user()
+        settlements = self.get_settlements_object_by_users()
         settlement_invoices = []
         for settlement in settlements:
             obj: ObjectManagerInterface = ObjectManagerAdapter()
-            settlement_invoice = obj.find_object_by(SettlementInvoice, **{"settlement_id":settlement.id, "user_id":self.user.id})
+            settlement_invoice = obj.find_object_by(SettlementInvoice, **{"settlement_id":settlement["id"], "user_id":self.user.id})
             settlement_invoices.append(settlement_invoice)
         return settlement_invoices
     
     def get_invoices(self)-> List[Invoice]:
         settlement_invoices: List[SettlementInvoice] = self.get_settlemen_invoice()
+        print("this is settlement_invoice ", settlement_invoices)
         invoices = []
         for settlement_invoice in settlement_invoices:
             obj: ObjectManagerInterface = ObjectManagerAdapter()
@@ -87,7 +88,7 @@ class SettlementUser:
         return client_datas
     
     def get_sum(self) -> Decimal:
-        total_amount = storage.get_sum_with_filter_and_interval(Settlement, self.meta_data["start_date"], self.meta_data["end_date"], "settlement_amount", **{"user_id":self.user.id})
+        total_amount = storage.get_sum_with_filter_and_interval(Settlement, self.meta_data["start_date"], self.meta_data["end_date"], "amount_paid", **{"user_id":self.user.id})
         return total_amount
     
     
@@ -110,6 +111,23 @@ class SettlementUser:
                 my_dict[key] = my_dict[key].to_dict()
                 
         return my_dict
-            
-            
-        
+
+
+obj: ObjectManagerInterface = ObjectManagerAdapter()
+my_dict = {
+    "user_id": "b25df142-0ec1-4422-ac7e-74dd5926b90c",
+    "start_date": "2024-07-14T15:30",
+    "end_date": "2024-07-15T15:30"
+}           
+user = obj.find_object_by(User, **{"id":my_dict["user_id"], "is_deleted":False})
+a = SettlementUser(user, my_dict)
+elements = a.get_settlements_object_by_users()         
+#settlements = storage.get_object_by_date_interval_and_filter(Settlement, "2024-07-14T15:30", "2024-07-15T15:30", **{"user_id": "b25df142-0ec1-4422-ac7e-74dd5926b90c", "is_deleted":False} )
+
+print("iti the length", len(a.get_settlements_object_by_users()))
+for e in elements:
+    print()
+    print("this is settlement", e)
+    print()
+#print("this is settlement", settlements[0].to_dict())
+

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from decimal import Decimal
+import logging
 from typing import Any, Dict, List, Optional, TypeVar, Union
 from domain.invoice.invoice_entity import InvoiceEntity
 from domain.settlement.settlement_data import SettlementUser
@@ -13,6 +14,7 @@ from services.object_manager_adapter import ObjectManagerAdapter
 from services.object_manager_interface import ObjectManagerInterface
 from models.customer import Customer
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S"
+logging.basicConfig(filename='/tmp/flask_app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 T = TypeVar('T')  # Type variable for the current class
@@ -35,8 +37,9 @@ class SettlementAdapter(SettlementPort):
     ) -> Dict[str, Any]:
         obj: ObjectManagerInterface = ObjectManagerAdapter()
         user = obj.find_object_by(User, **{"id":object_meta_data["user_id"], "is_deleted":False})
-        object_meta_data = convert_date_update_data(object_meta_data)   
+        #object_meta_data = convert_date_update_data(object_meta_data)   
         list_settlement = SettlementUser(user, object_meta_data)
+        logging.debug("list_settlement %s", list_settlement)
         return list_settlement.to_dict()
  
 
@@ -48,6 +51,7 @@ class SettlementAdapter(SettlementPort):
         customer = obj.find_object_by(Customer, **{"id":object_meta_data["customer_id"],"is_deleted":False})
         object_meta_data = convert_date_update_data(object_meta_data)
         invoices = InvoiceEntity(customer, object_meta_data)
+        logging.debug("invoices %s", invoices)
         return invoices.to_dict()
     
     def get_all_invoice_list_by_criteria(
@@ -56,8 +60,9 @@ class SettlementAdapter(SettlementPort):
     ) -> Dict[str, Any]:
         obj: ObjectManagerInterface = ObjectManagerAdapter()
         customer = obj.find_object_by(Customer, **{"id":object_meta_data["customer_id"],"is_deleted":False})
-        object_meta_data = convert_date_update_data(object_meta_data)
+        #object_meta_data = convert_date_update_data(object_meta_data)
         invoices = InvoiceEntity(customer, object_meta_data, True)
+        
         return invoices.to_dict()
     
     def get_all_settlement_list_by_criteria(
@@ -66,7 +71,7 @@ class SettlementAdapter(SettlementPort):
     ) -> Dict[str, Any]:
         obj: ObjectManagerInterface = ObjectManagerAdapter()
         user = obj.find_object_by(User, **{"id":object_meta_data["user_id"], "is_deleted":False})
-        object_meta_data = convert_date_update_data(object_meta_data)
+        #object_meta_data = convert_date_update_data(object_meta_data)
         list_settlement = SettlementUser(user, False, object_meta_data)
         return list_settlement.to_dict()
     
@@ -85,3 +90,14 @@ def convert_date_update_data(object_meta_data:Dict[str,Any]):
     if isinstance(object_meta_data["end_date"], str):
         object_meta_data["start_date"] = convert_to_timestamp(object_meta_data["end_date"])
     return object_meta_data
+
+"""
+my_dict =  {
+    "user_id": "6967040b-de21-4414-96c1-cb4dfea120e0",
+    "start_date": "2024-07-08T10:46",
+    "end_date": "2024-07-15T10:46"
+}
+obj:SettlementPort = SettlementAdapter()
+settlement_obj = obj.get_settlement_list_by_criteria(**my_dict)
+print(settlement_obj)
+"""
