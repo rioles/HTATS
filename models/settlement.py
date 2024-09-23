@@ -18,3 +18,7 @@ class Settlement(BaseModel, Base):
     user_id = Column(String(60), ForeignKey('user.id'), nullable=False)
     discount_amount = Column(Numeric(10, 2), nullable=False)
     amount_paid = Column(Numeric(10, 2), nullable=False)
+    discount_raison = Column(String(256), nullable=True)
+    
+    
+
